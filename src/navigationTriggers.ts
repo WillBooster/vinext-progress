@@ -91,15 +91,27 @@ export function patchAppRouter(navigationModule: unknown): void {
   patchRouterObject((globalThis as { next?: { router?: AppRouterLike } }).next?.router);
 }
 
+const routerMethods = ['push', 'replace'] as const;
+
+/**
+ * Whether `router[method] = ...` can be assigned without throwing: an own data property must be
+ * writable, and an inherited one needs the object to accept a new own property.
+ */
+function isMethodReplaceable(router: AppRouterLike, method: (typeof routerMethods)[number]): boolean {
+  const descriptor = Object.getOwnPropertyDescriptor(router, method);
+  return descriptor ? descriptor.writable === true : Object.isExtensible(router);
+}
+
 function patchRouterObject(router: AppRouterLike | undefined): void {
   if (!router || typeof router.push !== 'function' || typeof router.replace !== 'function') return;
-  // A frozen or sealed router would make the assignments below throw, and this runs while the module is
-  // evaluated, so the throw would crash the host app on import. Skipping only costs the bar its start
-  // signal for programmatic navigations; link clicks and the commit watcher still work.
-  if (!Object.isExtensible(router)) return;
+  // Assigning to a frozen, sealed, or read-only method throws, and this runs while the module is
+  // evaluated, so the throw would crash the host app on import. Both methods are checked up front so a
+  // rejected router is never left half-patched. Skipping only costs the bar its start signal for
+  // programmatic navigations; link clicks, form submissions, and the commit watcher still work.
+  if (!routerMethods.every((method) => isMethodReplaceable(router, method))) return;
   if (patchedRouters.has(router)) return;
   patchedRouters.add(router);
-  for (const method of ['push', 'replace'] as const) {
+  for (const method of routerMethods) {
     const original = router[method].bind(router);
     // Forward all arguments and the return value so the wrapper preserves the
     // full contract even when window.next.router is a Pages Router instance
@@ -137,7 +149,7 @@ export function watchNavigationSettlement(): void {
   // `writable` also excludes an accessor (already installed); `configurable` keeps a future vinext that
   // seals this property from turning `defineProperty` into a TypeError that would crash the host app,
   // since not installing the accessor degrades gracefully as described above.
-  if (!descriptor?.writable || !descriptor.configurable) return;
+  if (!descriptor || !descriptor.writable || !descriptor.configurable) return;
   // oxlint-disable-next-line unicorn/no-null -- vinext's internal state uses null for "no pending navigation"
   let pendingPathname = state.pendingPathname ?? null;
   Object.defineProperty(state, 'pendingPathname', {

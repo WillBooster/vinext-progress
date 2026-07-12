@@ -2,7 +2,7 @@ import { expect, mock, test } from 'bun:test';
 
 // `next/navigation` is resolved by the consuming app (vinext aliases it to its own shim),
 // so it cannot be imported for real outside one.
-mock.module('next/navigation', () => ({
+await mock.module('next/navigation', () => ({
   usePathname: () => '/',
   useSearchParams: () => new URLSearchParams(),
 }));
