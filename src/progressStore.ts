@@ -73,8 +73,15 @@ export function startProgress(armSafetyTimeout = true): void {
     // in-flight budget once a real navigation was observed, so a second start
     // cannot cut it off early), or disarm the budget for a manual takeover.
     navigationOwned = armSafetyTimeout;
-    if (armSafetyTimeout) restartStallTimer();
-    else disarmStallTimer();
+    if (armSafetyTimeout) {
+      restartStallTimer();
+    } else {
+      // Ownership left the navigation, so the next automatic start must begin
+      // on the short stall budget instead of inheriting the in-flight one;
+      // markNavigationInFlight re-upgrades it once its navigation is observed.
+      inFlightNavigation = false;
+      disarmStallTimer();
+    }
     return;
   }
   clearTimers();

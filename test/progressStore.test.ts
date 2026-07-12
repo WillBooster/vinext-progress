@@ -100,6 +100,19 @@ describe('manual start', () => {
     await sleep(60);
     expect(getProgressSnapshot().phase).toBe('active');
   });
+
+  test('an automatic start after a manual takeover gets the short stall budget again', async () => {
+    configureProgress({ stallTimeoutMs: 20, inFlightTimeoutMs: 5000 });
+    startProgress();
+    markNavigationInFlight();
+    startProgress(false);
+    finishNavigationProgress();
+    // A later false start (e.g. a canceled click) must not inherit the taken-over
+    // navigation's 5000ms in-flight budget.
+    startProgress();
+    await sleep(60);
+    expect(getProgressSnapshot().phase).toBe('idle');
+  });
 });
 
 describe('finishNavigationProgress', () => {
