@@ -23,7 +23,7 @@
       },
       "peerDependencies": {
         "react": ">=18",
-        "typescript": "",
+        "typescript": "*",
       },
       "optionalPeers": [
         "typescript",

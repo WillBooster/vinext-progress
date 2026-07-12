@@ -130,7 +130,10 @@ export function watchNavigationSettlement(): void {
     | undefined;
   if (!state || !('pendingPathname' in state)) return;
   const descriptor = Object.getOwnPropertyDescriptor(state, 'pendingPathname');
-  if (!descriptor?.writable) return; // already installed (or frozen by a future vinext)
+  // `writable` also excludes an accessor (already installed); `configurable` keeps a future vinext that
+  // seals this property from turning `defineProperty` into a TypeError that would crash the host app,
+  // since not installing the accessor degrades gracefully as described above.
+  if (!descriptor?.writable || !descriptor.configurable) return;
   // oxlint-disable-next-line unicorn/no-null -- vinext's internal state uses null for "no pending navigation"
   let pendingPathname = state.pendingPathname ?? null;
   Object.defineProperty(state, 'pendingPathname', {

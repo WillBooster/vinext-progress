@@ -73,6 +73,10 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
     // Configured during render (not an effect): child effects run before
     // parent effects, so a child's mount-time router.push would otherwise
     // start the bar with default options or a stale tracking flag.
+    // These writes are idempotent and derived only from props, so a render that
+    // React discards or replays (StrictMode, concurrent rendering) leaves the
+    // same values behind: no navigation is started and nothing is rendered from
+    // them until a commit. They configure the bar; they never advance it.
     configureProgress(fullOptions);
     setRouterTracking(trackRouterCalls);
   }
