@@ -19,6 +19,9 @@
   "files": [
     "dist"
   ],
+  "workspaces": [
+    "e2e/fixture"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "cleanup": "bun --bun wb lint --fix --format",
