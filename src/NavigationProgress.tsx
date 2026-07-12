@@ -8,6 +8,7 @@ import {
   handleDocumentClick,
   handleDocumentSubmit,
   patchAppRouter,
+  setRouterReportedTracking,
   setRouterTracking,
   watchNavigationSettlement,
 } from './navigationTriggers.js';
@@ -37,12 +38,29 @@ export interface NavigationProgressProps extends Partial<ProgressOptions> {
   zIndex?: number;
   /** Accessible name announced for the progress bar. */
   ariaLabel?: string;
-  /** Start the bar on same-origin link clicks (default: true). */
+  /**
+   * Start the bar at interaction time on same-origin link clicks (default: true). On vinext the
+   * resulting navigation still starts the bar via `trackRouterReportedNavigations`; this flag only
+   * removes the earlier, click-time signal.
+   */
   trackLinkClicks?: boolean;
-  /** Start the bar on same-origin GET form submissions, e.g. `next/form` (default: true). */
+  /**
+   * Start the bar at interaction time on same-origin GET form submissions, e.g. `next/form`
+   * (default: true). Same caveat as `trackLinkClicks`.
+   */
   trackFormSubmits?: boolean;
-  /** Start the bar on `router.push` / `router.replace` (vinext only; default: true). */
+  /**
+   * Start the bar at call time on `router.push` / `router.replace` (vinext only; default: true).
+   * Same caveat as `trackLinkClicks`.
+   */
   trackRouterCalls?: boolean;
+  /**
+   * Start the bar whenever vinext itself reports an in-flight navigation (default: true). This
+   * covers navigations with no interaction-time signal — back/forward traversals that refetch,
+   * server-action redirects, `router.refresh()` — and any navigation the other listeners miss.
+   * Set every `track*` prop to false for fully manual control via `useNavigationProgress`.
+   */
+  trackRouterReportedNavigations?: boolean;
 }
 
 /**
@@ -59,6 +77,7 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
   trackLinkClicks = true,
   trackFormSubmits = true,
   trackRouterCalls = true,
+  trackRouterReportedNavigations = true,
   ...progressOptions
 }) => {
   // Idempotent retry (module evaluation may have run before vinext's browser
@@ -77,6 +96,7 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
     // render that React replays (StrictMode) leaves the same values behind.
     configureProgress(fullOptions);
     setRouterTracking(trackRouterCalls);
+    setRouterReportedTracking(trackRouterReportedNavigations);
   }
 
   // Re-assert the configuration on every commit: React may discard a render
@@ -86,6 +106,7 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
   useIsomorphicLayoutEffect(() => {
     configureProgress(fullOptions);
     setRouterTracking(trackRouterCalls);
+    setRouterReportedTracking(trackRouterReportedNavigations);
   });
 
   useEffect(() => {

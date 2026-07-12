@@ -52,12 +52,28 @@ export function handleDocumentSubmit(event: SubmitEvent): void {
     return;
   }
   url.search = '';
-  const formData = new FormData(form, submitter ?? undefined);
+  const formData = buildFormData(form, submitter);
   for (const [key, value] of formData.entries()) {
     // File entries contribute their file name, mirroring vinext's behavior.
     url.searchParams.append(key, typeof value === 'string' ? value : (value as unknown as File).name);
   }
   maybeStartForHref(url.href);
+}
+
+/**
+ * Mirrors vinext's own `buildFormData`: some browsers implement `FormData(form)` but reject the
+ * newer submitter argument, and vinext falls back to appending the enabled named submitter by hand.
+ */
+function buildFormData(form: HTMLFormElement, submitter: HTMLElement | null): FormData {
+  if (!submitter) return new FormData(form);
+  try {
+    return new FormData(form, submitter);
+  } catch {
+    const formData = new FormData(form);
+    const button = submitter as HTMLButtonElement;
+    if (!button.disabled && button.name) formData.append(button.name, button.value);
+    return formData;
+  }
 }
 
 interface AppRouterLike {
@@ -67,9 +83,14 @@ interface AppRouterLike {
 
 const patchedRouters = new WeakSet<object>();
 let routerTrackingEnabled = true;
+let routerReportedTrackingEnabled = true;
 
 export function setRouterTracking(enabled: boolean): void {
   routerTrackingEnabled = enabled;
+}
+
+export function setRouterReportedTracking(enabled: boolean): void {
+  routerReportedTrackingEnabled = enabled;
 }
 
 /**
@@ -189,12 +210,14 @@ export function watchNavigationSettlement(): void {
         // budget to the longer in-flight budget — settlement or the commit
         // watcher finishes the bar, so merely slow navigations are not cut
         // off, but a hung fetch (which never settles) still cannot stick
-        // forever. Deferred and re-checked like the settlement above.
+        // forever. Deferred and re-checked like the settlement above. The
+        // in-flight budget switch stays active even when the consumer opted
+        // out of router-reported starts, so a manually or listener-started
+        // bar still gets the longer budget.
         queueMicrotask(() => {
-          if (pendingPathname !== null) {
-            startProgress();
-            markNavigationInFlight();
-          }
+          if (pendingPathname === null) return;
+          if (routerReportedTrackingEnabled) startProgress();
+          markNavigationInFlight();
         });
       }
     },
@@ -209,8 +232,10 @@ function maybeStartForHref(href: string): void {
     return;
   }
   if (url.origin !== globalThis.location.origin || !url.protocol.startsWith('http')) return;
-  // Same pathname + search means either a hash-only change or a no-op
-  // navigation; neither produces a URL commit, so starting would stall.
+  // Same pathname + search may be a hash-only change or a click the router turns
+  // into a no-op — neither produces a URL commit, so starting here would stall.
+  // A same-URL navigation the router really performs (it does refetch) is still
+  // covered: the settlement watcher starts the bar once the router reports it.
   if (url.pathname === globalThis.location.pathname && url.search === globalThis.location.search) return;
   startProgress();
 }

@@ -1,7 +1,7 @@
 import { beforeEach, expect, test } from 'bun:test';
 
-import { watchNavigationSettlement } from '../src/navigationTriggers.js';
-import { getProgressSnapshot, resetProgress } from '../src/progressStore.js';
+import { setRouterReportedTracking, watchNavigationSettlement } from '../src/navigationTriggers.js';
+import { getProgressSnapshot, resetProgress, startProgress } from '../src/progressStore.js';
 
 interface NavigationStateLike {
   pendingPathname: string | null;
@@ -23,6 +23,7 @@ async function flushMicrotasks(): Promise<void> {
 beforeEach(() => {
   (globalThis as { window?: unknown }).window = globalThis;
   resetProgress();
+  setRouterReportedTracking(true);
 });
 
 test('a router-reported in-flight navigation starts the bar and settlement finishes it', async () => {
@@ -45,6 +46,22 @@ test('an idle null-over-null write neither starts nor finishes the bar', async (
   state.pendingPathname = null;
   await flushMicrotasks();
   expect(getProgressSnapshot().phase).toBe('idle');
+});
+
+test('router-reported tracking opt-out: bar is not started, but a started bar still settles', async () => {
+  const state = installState();
+  setRouterReportedTracking(false);
+
+  state.pendingPathname = '/next';
+  await flushMicrotasks();
+  expect(getProgressSnapshot().phase).toBe('idle');
+
+  // A manually (or listener-) started bar must still be finished on settlement.
+  startProgress();
+  // oxlint-disable-next-line unicorn/no-null -- vinext writes null on settlement
+  state.pendingPathname = null;
+  await flushMicrotasks();
+  expect(getProgressSnapshot().phase).toBe('finishing');
 });
 
 test('a navigation that settles before the microtask flushes never shows the bar', async () => {

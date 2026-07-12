@@ -37,7 +37,10 @@ test('instant navigation: bar never lingers', async ({ page }) => {
   await expect(page.getByRole('progressbar')).toHaveCount(0);
 });
 
-test('same-URL link click: bar does not start', async ({ page }) => {
+test('same-URL link click: bar completes without lingering', async ({ page }) => {
+  // vinext really performs this navigation (it refetches the page), so the
+  // settlement watcher may briefly show the bar; it must finish promptly even
+  // though the committed URL never changes.
   await page.getByTestId('to-same').click();
   await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
   await expect(page.getByRole('progressbar')).toHaveCount(0);

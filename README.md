@@ -14,7 +14,7 @@ Existing top loaders finish the bar by monkey-patching `window.history.pushState
 vinext-progress takes the opposite approach:
 
 - **Finish** — observes the URL commit through `usePathname()` / `useSearchParams()`, which vinext (and Next.js) guarantee to update exactly once per committed navigation. Covers `<Link>`, `router.push`/`replace`, `redirect()`, server actions, and back/forward. No patching.
-- **Start** — a document-level click listener that mirrors the router's own link-acceptance rules (same-origin, not `target=_blank`, not `download`, not modified clicks, not hash-only or same-URL), a submit listener for GET form navigations (`next/form`), plus a wrapper around vinext's public `appRouterInstance` so programmatic `router.push`/`router.replace` also show the bar. On vinext, any navigation the router itself reports as in-flight also starts the bar — covering back/forward traversals that refetch, server-action redirects, and `router.refresh()`, independent of the `track*` props.
+- **Start** — a document-level click listener that mirrors the router's own link-acceptance rules (same-origin, not `target=_blank`, not `download`, not modified clicks, not hash-only), a submit listener for GET form navigations (`next/form`), plus a wrapper around vinext's public `appRouterInstance` so programmatic `router.push`/`router.replace` also show the bar. On vinext, any navigation the router itself reports as in-flight also starts the bar — covering back/forward traversals that refetch, server-action redirects, `router.refresh()`, and same-URL navigations (which vinext really does refetch). Disable with `trackRouterReportedNavigations={false}`.
 - **Never stuck** — a settlement watcher on vinext's window-global navigation state finishes the bar even when the committed URL equals the starting URL (e.g. `redirect()` back to the current page). A stall timeout clears starts that never become a navigation (e.g. a click canceled by user code), and once a real navigation is observed it is replaced by a longer in-flight timeout so slow navigations are not cut off but a hung fetch still cannot pin the bar forever.
 
 Additional properties:
@@ -46,21 +46,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ### Props
 
-| Prop                | Default             | Description                                                         |
-| ------------------- | ------------------- | ------------------------------------------------------------------- |
-| `color`             | `#29d`              | Bar color (any CSS color, including `var(...)`)                     |
-| `height`            | `3`                 | Bar height in px                                                    |
-| `zIndex`            | `1600`              | Stacking order                                                      |
-| `ariaLabel`         | `'Page navigation'` | Accessible name                                                     |
-| `trackLinkClicks`   | `true`              | Start on same-origin link clicks                                    |
-| `trackFormSubmits`  | `true`              | Start on same-origin GET form submissions (`next/form`)             |
-| `trackRouterCalls`  | `true`              | Start on `router.push`/`replace` (vinext only; no-op on plain Next) |
-| `minimum`           | `0.08`              | Initial progress value                                              |
-| `maximum`           | `0.994`             | Trickle upper bound                                                 |
-| `trickleSpeed`      | `200`               | ms between trickle increments                                       |
-| `speed`             | `200`               | CSS transition duration (ms)                                        |
-| `stallTimeoutMs`    | `10000`             | Auto-finish timeout for starts with no observed navigation (ms)     |
-| `inFlightTimeoutMs` | `30000`             | Auto-finish timeout once a real navigation is in flight (ms)        |
+| Prop                             | Default             | Description                                                                                                       |
+| -------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `color`                          | `#29d`              | Bar color (any CSS color, including `var(...)`)                                                                   |
+| `height`                         | `3`                 | Bar height in px                                                                                                  |
+| `zIndex`                         | `1600`              | Stacking order                                                                                                    |
+| `ariaLabel`                      | `'Page navigation'` | Accessible name                                                                                                   |
+| `trackLinkClicks`                | `true`              | Start at click time on same-origin link clicks¹                                                                   |
+| `trackFormSubmits`               | `true`              | Start at submit time on same-origin GET form submissions (`next/form`)¹                                           |
+| `trackRouterCalls`               | `true`              | Start at call time on `router.push`/`replace` (vinext only; no-op on plain Next)¹                                 |
+| `trackRouterReportedNavigations` | `true`              | Start whenever vinext reports an in-flight navigation (back/forward, server-action redirects, `router.refresh()`) |
+| `minimum`                        | `0.08`              | Initial progress value                                                                                            |
+| `maximum`                        | `0.994`             | Trickle upper bound                                                                                               |
+| `trickleSpeed`                   | `200`               | ms between trickle increments                                                                                     |
+| `speed`                          | `200`               | CSS transition duration (ms)                                                                                      |
+| `stallTimeoutMs`                 | `10000`             | Auto-finish timeout for starts with no observed navigation (ms)                                                   |
+| `inFlightTimeoutMs`              | `30000`             | Auto-finish timeout once a real navigation is in flight (ms)                                                      |
+
+¹ These three props only remove the _early_, interaction-time start signal. On vinext the resulting navigation is still reported by the router and starts the bar unless `trackRouterReportedNavigations` is also `false`; set all four to `false` for fully manual control.
 
 ### Manual control
 
@@ -78,7 +81,7 @@ progress.finish();
 
 - A link click whose navigation is canceled via `event.preventDefault()` in user code briefly starts the bar; the stall timeout clears it. (Distinguishing this case is impossible at the document level because the router itself calls `preventDefault()` for every client-side navigation.)
 - With a `basePath`, programmatic same-URL detection may start the bar unnecessarily; the settlement watcher, commit watcher, or stall timeout clears it.
-- A GET form whose predicted destination (action plus submitted fields, mirroring vinext's own URL construction) equals the current URL does not start the bar — such a submit produces no URL commit to finish on.
+- Same-URL navigations the router actually performs (a `<Link>` to the current URL, a same-destination GET form submit) briefly show the bar: vinext refetches the page, the router reports the navigation, and the settlement watcher starts and then finishes the bar.
 
 ## Development
 
