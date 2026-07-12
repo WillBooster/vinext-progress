@@ -1,0 +1,22 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/npm",
+    [
+      "@semantic-release/github",
+      {
+        "labels": ["r: semantic-release"],
+        "releasedLabels": ["released :bookmark:"],
+        "successCommentCondition": false,
+        "failCommentCondition": false
+      }
+    ]
+  ]
+}

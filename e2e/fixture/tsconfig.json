@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "paths": {
+      // vinext aliases next/* at runtime; map the same shims for type checking
+      // so the fixture does not need the heavyweight `next` package.
+      "next/form": ["../../node_modules/vinext/dist/shims/form"],
+      "next/link": ["../../node_modules/vinext/dist/shims/link"],
+      "next/navigation": ["../../node_modules/vinext/dist/shims/navigation"],
+      "vinext-progress": ["../../src/index.ts"]
+    },
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext"
+  },
+  "include": ["app/**/*", "vite.config.ts"]
+}

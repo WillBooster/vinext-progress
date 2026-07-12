@@ -1,0 +1,118 @@
+import { beforeEach, describe, expect, test } from 'bun:test';
+
+import {
+  configureProgress,
+  finishProgress,
+  getProgressSnapshot,
+  markNavigationInFlight,
+  resetProgress,
+  setProgress,
+  startProgress,
+  subscribeProgress,
+} from '../src/progressStore.js';
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+beforeEach(() => {
+  resetProgress();
+  configureProgress({
+    minimum: 0.08,
+    maximum: 0.994,
+    trickleSpeed: 10,
+    speed: 10,
+    stallTimeoutMs: 10_000,
+    inFlightTimeoutMs: 30_000,
+  });
+});
+
+describe('startProgress', () => {
+  test('activates the bar at the minimum value', () => {
+    startProgress();
+    expect(getProgressSnapshot()).toEqual({ phase: 'active', value: 0.08 });
+  });
+
+  test('trickles toward the maximum without reaching it', async () => {
+    startProgress();
+    const initial = getProgressSnapshot().value;
+    await sleep(50);
+    const trickled = getProgressSnapshot().value;
+    expect(trickled).toBeGreaterThan(initial);
+    expect(trickled).toBeLessThan(0.994 + Number.EPSILON);
+    expect(getProgressSnapshot().phase).toBe('active');
+  });
+
+  test('is idempotent while active', () => {
+    startProgress();
+    setProgress(0.5);
+    startProgress();
+    expect(getProgressSnapshot().value).toBe(0.5);
+  });
+});
+
+describe('finishProgress', () => {
+  test('completes to 1, then returns to idle', async () => {
+    startProgress();
+    finishProgress();
+    expect(getProgressSnapshot()).toEqual({ phase: 'finishing', value: 1 });
+    await sleep(40);
+    expect(getProgressSnapshot()).toEqual({ phase: 'idle', value: 0 });
+  });
+
+  test('is a no-op while idle', () => {
+    finishProgress();
+    expect(getProgressSnapshot()).toEqual({ phase: 'idle', value: 0 });
+  });
+});
+
+describe('stall safety net', () => {
+  test('auto-finishes when no commit arrives within stallTimeoutMs', async () => {
+    configureProgress({ stallTimeoutMs: 20 });
+    startProgress();
+    await sleep(60);
+    expect(getProgressSnapshot().phase).toBe('idle');
+  });
+});
+
+describe('markNavigationInFlight', () => {
+  test('keeps the bar active past stallTimeoutMs while a navigation is in flight', async () => {
+    configureProgress({ stallTimeoutMs: 20, inFlightTimeoutMs: 30_000 });
+    startProgress();
+    markNavigationInFlight();
+    await sleep(60);
+    expect(getProgressSnapshot().phase).toBe('active');
+  });
+
+  test('a re-entrant start keeps the longer in-flight budget', async () => {
+    configureProgress({ stallTimeoutMs: 20, inFlightTimeoutMs: 30_000 });
+    startProgress();
+    markNavigationInFlight();
+    startProgress();
+    await sleep(60);
+    expect(getProgressSnapshot().phase).toBe('active');
+  });
+
+  test('a hung navigation still finishes after inFlightTimeoutMs', async () => {
+    configureProgress({ stallTimeoutMs: 20, inFlightTimeoutMs: 60 });
+    startProgress();
+    markNavigationInFlight();
+    await sleep(120);
+    expect(getProgressSnapshot().phase).toBe('idle');
+  });
+});
+
+describe('subscribeProgress', () => {
+  test('notifies on changes and stops after unsubscribe', () => {
+    let notifications = 0;
+    const unsubscribe = subscribeProgress(() => {
+      notifications++;
+    });
+    startProgress();
+    expect(notifications).toBe(1);
+    unsubscribe();
+    finishProgress();
+    expect(notifications).toBe(1);
+    resetProgress();
+  });
+});

@@ -1,0 +1,68 @@
+{
+  "name": "vinext-progress",
+  "version": "0.0.0-semantically-released",
+  "description": "Framework-native navigation progress bar for vinext. Detects route transitions through the router itself — no history monkey-patching, no stuck bars, ~1 kB, accessible by default.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WillBooster/vinext-progress.git"
+  },
+  "license": "Apache-2.0",
+  "author": "WillBooster Inc.",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "cleanup": "bun --bun wb lint --fix --format",
+    "format": "bun --bun wb lint --format",
+    "lint": "bun --bun wb lint",
+    "lint-fix": "bun --bun wb lint --fix",
+    "prepare": "lefthook install || true",
+    "test": "bun wb test",
+    "test:e2e": "bun run build && playwright test --config e2e/playwright.config.ts",
+    "test:unit": "bun test test",
+    "typecheck": "bun --bun wb typecheck",
+    "verify": "bun --bun wb verify",
+    "verify-full": "bun wb verify --full"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0",
+    "@tsconfig/bun": "1.0.10",
+    "@types/bun": "latest",
+    "@types/react": "19.2.13",
+    "@willbooster/oxfmt-config": "1.2.2",
+    "@willbooster/oxlint-config": "1.4.8",
+    "@willbooster/wb": "13.26.1",
+    "conventional-changelog-conventionalcommits": "9.3.1",
+    "lefthook": "2.1.9",
+    "oxfmt": "0.58.0",
+    "oxlint": "1.73.0",
+    "oxlint-tsgolint": "0.24.0",
+    "react": "19.2.6",
+    "semantic-release": "25.0.5",
+    "sort-package-json": "4.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "typescript": ""
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

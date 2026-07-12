@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "importHelpers": false,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "noEmit": true,
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "types": ["bun"]
+  },
+  "exclude": ["test/fixtures", "e2e/fixture"],
+  "extends": "@tsconfig/bun/tsconfig.json",
+  "include": ["*.config.ts", "e2e/**/*", "scripts/**/*", "src/**/*", "test/**/*", "types/**/*"]
+}
