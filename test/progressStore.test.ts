@@ -77,6 +77,23 @@ describe('stall safety net', () => {
   });
 });
 
+describe('manual start', () => {
+  test('outlives stallTimeoutMs: no safety timeout is armed', async () => {
+    configureProgress({ stallTimeoutMs: 20 });
+    startProgress(false);
+    await sleep(60);
+    expect(getProgressSnapshot().phase).toBe('active');
+  });
+
+  test('taking over an automatically started bar disarms its stall timeout', async () => {
+    configureProgress({ stallTimeoutMs: 20 });
+    startProgress();
+    startProgress(false);
+    await sleep(60);
+    expect(getProgressSnapshot().phase).toBe('active');
+  });
+});
+
 describe('markNavigationInFlight', () => {
   test('keeps the bar active past stallTimeoutMs while a navigation is in flight', async () => {
     configureProgress({ stallTimeoutMs: 20, inFlightTimeoutMs: 30_000 });

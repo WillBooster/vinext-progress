@@ -77,6 +77,8 @@ progress.set(0.5);
 progress.finish();
 ```
 
+A manually started bar is not subject to the automatic stall/in-flight timeouts — it trickles until you call `finish()` (or `reset()`), so long-running work is never cut off. `isActive()` is a point-in-time read, not reactive state.
+
 ## Known limitations
 
 - A link click whose navigation is canceled via `event.preventDefault()` in user code briefly starts the bar; the stall timeout clears it. (Distinguishing this case is impossible at the document level because the router itself calls `preventDefault()` for every client-side navigation.)

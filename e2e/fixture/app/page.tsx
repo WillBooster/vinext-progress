@@ -42,6 +42,11 @@ export default function HomePage(): ReactNode {
           </Link>
         </li>
         <li>
+          <Link data-testid="to-layout-redirect" href="/layout-redirect" prefetch={false}>
+            Redirect to the slow page from a mount-time layout effect
+          </Link>
+        </li>
+        <li>
           <PushButton />
         </li>
         <li>

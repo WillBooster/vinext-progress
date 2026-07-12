@@ -48,18 +48,30 @@ let trickleTimer: ReturnType<typeof setInterval> | undefined;
 let stallTimer: ReturnType<typeof setTimeout> | undefined;
 let idleTimer: ReturnType<typeof setTimeout> | undefined;
 let inFlightNavigation = false;
+let startCount = 0;
 
-/** Start (or keep) the progress bar and begin trickling toward `maximum`. No-op on the server. */
-export function startProgress(): void {
+/**
+ * Start (or keep) the progress bar and begin trickling toward `maximum`. No-op on the server.
+ *
+ * A manual start (`armSafetyTimeout: false`, used by `useNavigationProgress().start()`) disarms
+ * the auto-finish safety timers: the caller shows the bar for work of unknown duration (e.g. a
+ * long-running server action) and finishes it explicitly, so a timeout would cut the bar off
+ * mid-work. A later real navigation re-arms a budget via `startProgress()`/`markNavigationInFlight`.
+ */
+export function startProgress(armSafetyTimeout = true): void {
   // Client components also render on the server, where the bar always renders idle
   // (`getServerProgressSnapshot`). Starting there could not show anything and would leak the
   // trickle interval into the server process or edge isolate, so it is refused outright.
   if (globalThis.window === undefined) return;
+  // Every start marks a (potentially superseding) claim on the bar, even while active; the commit
+  // watcher uses this to avoid finishing a navigation newer than the commit it observed.
+  startCount++;
   if (snapshot.phase === 'active') {
     // A new navigation superseded the current one; give it a fresh safety
     // budget of the current kind (the longer in-flight budget once a real
     // navigation was observed, so a second start cannot cut it off early).
-    restartStallTimer();
+    if (armSafetyTimeout) restartStallTimer();
+    else disarmStallTimer();
     return;
   }
   clearTimers();
@@ -67,7 +79,7 @@ export function startProgress(): void {
   trickleTimer = setInterval(() => {
     setProgress(snapshot.value + (options.maximum - snapshot.value) * 0.1);
   }, options.trickleSpeed);
-  restartStallTimer();
+  if (armSafetyTimeout) restartStallTimer();
 }
 
 /** Set the progress value explicitly, clamped to `[minimum, maximum]` (only while active). */
@@ -123,6 +135,15 @@ export function getProgressSnapshot(): ProgressSnapshot {
   return snapshot;
 }
 
+/**
+ * Monotonic count of `startProgress` calls. Lets the commit watcher detect a navigation that
+ * started after the commit it observed (e.g. a mount-time effect pushing a new route) and skip
+ * finishing that newer navigation's bar.
+ */
+export function getProgressStartCount(): number {
+  return startCount;
+}
+
 /** Server-side rendering always sees the idle state. */
 export function getServerProgressSnapshot(): ProgressSnapshot {
   return idleSnapshot;
@@ -136,6 +157,11 @@ function restartStallTimer(): void {
     },
     inFlightNavigation ? options.inFlightTimeoutMs : options.stallTimeoutMs
   );
+}
+
+function disarmStallTimer(): void {
+  clearTimeout(stallTimer);
+  stallTimer = undefined;
 }
 
 function update(phase: ProgressPhase, value: number): void {

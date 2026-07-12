@@ -17,6 +17,7 @@ import {
   defaultProgressOptions,
   finishProgress,
   getProgressSnapshot,
+  getProgressStartCount,
   getServerProgressSnapshot,
   subscribeProgress,
 } from './progressStore.js';
@@ -144,9 +145,17 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
 const NavigationCommitWatcher: React.FC = () => {
   const pathname = usePathname();
   const search = useSearchParams()?.toString() ?? '';
+  // Read-only capture for the effect below; the value is never rendered.
+  const startCountAtRender = getProgressStartCount();
   useEffect(() => {
-    // No-op while idle, so running on mount is harmless.
-    finishProgress();
+    // Skip when a navigation started after this commit rendered: a mount-time
+    // (layout) effect can push a new route before this passive effect runs, and
+    // that newer navigation's in-flight bar must not be finished here — its own
+    // commit or settlement finishes it. No-op while idle, so running on mount
+    // is harmless. startCountAtRender is deliberately not a dependency: the
+    // effect must only re-run on URL changes, never on unrelated re-renders.
+    if (getProgressStartCount() === startCountAtRender) finishProgress();
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- startCountAtRender must not retrigger the effect: a re-render without a URL change would otherwise finish an in-flight bar
   }, [pathname, search]);
   // Rendering undefined is valid for the react >=18 peer range (the "nothing
   // was returned from render" invariant was removed in React 18).

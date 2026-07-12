@@ -3,6 +3,11 @@
 import { finishProgress, getProgressSnapshot, resetProgress, setProgress, startProgress } from './progressStore.js';
 
 export interface NavigationProgressController {
+  /**
+   * Start the bar. Unlike automatic (navigation-driven) starts, no safety
+   * timeout is armed: the bar trickles until `finish()` or `reset()` is
+   * called, so long-running work is never cut off mid-flight.
+   */
   start: () => void;
   /**
    * Set the progress value explicitly. Clamped to `[minimum, maximum]`
@@ -13,11 +18,18 @@ export interface NavigationProgressController {
   finish: () => void;
   /** Remove the bar immediately without the completion animation. */
   reset: () => void;
+  /**
+   * Point-in-time read of whether the bar is active. Not reactive: calling it
+   * during render does not subscribe the component, so a phase change alone
+   * never triggers a re-render.
+   */
   isActive: () => boolean;
 }
 
 const controller: NavigationProgressController = {
-  start: startProgress,
+  start: () => {
+    startProgress(false);
+  },
   set: setProgress,
   finish: finishProgress,
   reset: resetProgress,

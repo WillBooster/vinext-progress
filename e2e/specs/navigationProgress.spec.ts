@@ -104,6 +104,32 @@ test('hung navigation: bar finishes via the in-flight timeout', async ({ page })
   await expect(page.getByRole('progressbar')).toHaveCount(0);
 });
 
+test('mount-time layout-effect redirect: the first commit does not finish the second navigation', async ({ page }) => {
+  // Record any moment the bar reports completion while the slow page has not
+  // committed yet — the premature-finish race the commit watcher must avoid.
+  // The bar legitimately reaches 100 only after the slow page's commit. Note:
+  // the settlement watcher's deferred restart can mask a premature finish
+  // before React renders it, so this observer is a best-effort guard; the
+  // commit watcher's start-count check is what actually prevents the race.
+  await page.addInitScript(() => {
+    const globals = globalThis as unknown as { __earlyFinish?: boolean };
+    globals.__earlyFinish = false;
+    new MutationObserver(() => {
+      const bar = document.querySelector('[role="progressbar"]');
+      const slowCommitted = document.querySelector('h1')?.textContent?.includes('Slow page') ?? false;
+      if (bar?.getAttribute('aria-valuenow') === '100' && !slowCommitted) globals.__earlyFinish = true;
+    }).observe(document.documentElement, { attributes: true, childList: true, subtree: true });
+  });
+  // The init script only applies to future document loads; reload the page the
+  // beforeEach hook already opened.
+  await page.reload();
+  await expect(page.getByTestId('hydrated')).toBeAttached();
+  await page.getByTestId('to-layout-redirect').click();
+  await expect(page.getByRole('heading', { name: 'Slow page' })).toBeVisible();
+  await expect(page.getByRole('progressbar')).toHaveCount(0);
+  expect(await page.evaluate(() => (globalThis as unknown as { __earlyFinish?: boolean }).__earlyFinish)).toBe(false);
+});
+
 test('back/forward traversal that refetches: bar appears and completes', async ({ page }) => {
   await page.getByTestId('to-slow').click();
   await expect(page.getByRole('heading', { name: 'Slow page' })).toBeVisible();
