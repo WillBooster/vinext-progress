@@ -16,7 +16,7 @@ import {
   configureProgress,
   defaultProgressOptions,
   definedEntries,
-  finishProgress,
+  finishNavigationProgress,
   getProgressSnapshot,
   getProgressStartCount,
   getServerProgressSnapshot,
@@ -155,7 +155,10 @@ const NavigationCommitWatcher: React.FC = () => {
     // commit or settlement finishes it. No-op while idle, so running on mount
     // is harmless. startCountAtRender is deliberately not a dependency: the
     // effect must only re-run on URL changes, never on unrelated re-renders.
-    if (getProgressStartCount() === startCountAtRender) finishProgress();
+    // finishNavigationProgress (not finishProgress): these hooks also update on
+    // app-level history.pushState/replaceState URL rewrites, which must not
+    // finish a manually started bar.
+    if (getProgressStartCount() === startCountAtRender) finishNavigationProgress();
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- startCountAtRender must not retrigger the effect: a re-render without a URL change would otherwise finish an in-flight bar
   }, [pathname, search]);
   // Rendering undefined is valid for the react >=18 peer range (the "nothing

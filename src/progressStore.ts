@@ -48,6 +48,7 @@ let trickleTimer: ReturnType<typeof setInterval> | undefined;
 let stallTimer: ReturnType<typeof setTimeout> | undefined;
 let idleTimer: ReturnType<typeof setTimeout> | undefined;
 let inFlightNavigation = false;
+let navigationOwned = false;
 let startCount = 0;
 
 /**
@@ -67,14 +68,17 @@ export function startProgress(armSafetyTimeout = true): void {
   // watcher uses this to avoid finishing a navigation newer than the commit it observed.
   startCount++;
   if (snapshot.phase === 'active') {
-    // A new navigation superseded the current one; give it a fresh safety
-    // budget of the current kind (the longer in-flight budget once a real
-    // navigation was observed, so a second start cannot cut it off early).
+    // A new navigation superseded the current one (or a manual start took the
+    // bar over); give it a fresh safety budget of the current kind (the longer
+    // in-flight budget once a real navigation was observed, so a second start
+    // cannot cut it off early), or disarm the budget for a manual takeover.
+    navigationOwned = armSafetyTimeout;
     if (armSafetyTimeout) restartStallTimer();
     else disarmStallTimer();
     return;
   }
   clearTimers();
+  navigationOwned = armSafetyTimeout;
   update('active', options.minimum);
   trickleTimer = setInterval(() => {
     setProgress(snapshot.value + (options.maximum - snapshot.value) * 0.1);
@@ -86,6 +90,18 @@ export function startProgress(armSafetyTimeout = true): void {
 export function setProgress(value: number): void {
   if (snapshot.phase !== 'active') return;
   update('active', Math.min(options.maximum, Math.max(options.minimum, value)));
+}
+
+/**
+ * Finish the bar only when a navigation owns it. The commit watcher calls this
+ * on every `usePathname`/`useSearchParams` change, but vinext also updates
+ * those hooks for app-level `history.pushState`/`replaceState` URL rewrites
+ * (query-string state sync), which must not finish a manually started bar.
+ * A real navigation start or `markNavigationInFlight` transfers ownership, so
+ * the documented takeover behavior is preserved.
+ */
+export function finishNavigationProgress(): void {
+  if (navigationOwned) finishProgress();
 }
 
 /** Complete the bar: grow to 100%, fade out, then unmount. No-op when idle. */
@@ -108,6 +124,7 @@ export function finishProgress(): void {
 export function markNavigationInFlight(): void {
   if (snapshot.phase !== 'active') return;
   inFlightNavigation = true;
+  navigationOwned = true;
   restartStallTimer();
 }
 
@@ -185,4 +202,5 @@ function clearTimers(): void {
   clearTimeout(idleTimer);
   trickleTimer = stallTimer = idleTimer = undefined;
   inFlightNavigation = false;
+  navigationOwned = false;
 }

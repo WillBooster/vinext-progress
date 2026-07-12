@@ -3,6 +3,7 @@ import { afterAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   configureProgress,
   defaultProgressOptions,
+  finishNavigationProgress,
   finishProgress,
   getProgressSnapshot,
   markNavigationInFlight,
@@ -98,6 +99,27 @@ describe('manual start', () => {
     startProgress(false);
     await sleep(60);
     expect(getProgressSnapshot().phase).toBe('active');
+  });
+});
+
+describe('finishNavigationProgress', () => {
+  test('finishes a navigation-owned bar', () => {
+    startProgress();
+    finishNavigationProgress();
+    expect(getProgressSnapshot().phase).toBe('finishing');
+  });
+
+  test('leaves a manually started bar running (app-level URL rewrites are not navigations)', () => {
+    startProgress(false);
+    finishNavigationProgress();
+    expect(getProgressSnapshot().phase).toBe('active');
+  });
+
+  test('finishes a manual bar once a navigation takes it over', () => {
+    startProgress(false);
+    markNavigationInFlight();
+    finishNavigationProgress();
+    expect(getProgressSnapshot().phase).toBe('finishing');
   });
 });
 

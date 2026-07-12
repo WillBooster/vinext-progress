@@ -93,6 +93,20 @@ test('manually started bar survives an idle history commit', async ({ page }) =>
   expect(Number(await bar.getAttribute('aria-valuenow'))).toBeLessThan(100);
 });
 
+test('manually started bar survives an app-level URL rewrite', async ({ page }) => {
+  await page.getByTestId('manual-start').click();
+  const bar = page.getByRole('progressbar');
+  await expect(bar).toBeVisible();
+  // vinext updates usePathname/useSearchParams for app-level history rewrites
+  // with a changed URL (query-string state sync); no navigation happens, so
+  // the manual bar must keep trickling instead of being finished by the
+  // commit watcher. Same 800ms window rationale as the idle-commit test.
+  await page.evaluate(() => history.replaceState(history.state, '', '/?filter=abc'));
+  await page.waitForTimeout(800);
+  await expect(bar).toBeVisible();
+  expect(Number(await bar.getAttribute('aria-valuenow'))).toBeLessThan(100);
+});
+
 test('hung navigation: bar finishes via the in-flight timeout', async ({ page }) => {
   // Hold the slow page's RSC request open forever: vinext never settles the
   // navigation, so only the in-flight timeout can clear the bar.
