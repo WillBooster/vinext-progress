@@ -118,10 +118,14 @@ export function resetProgress(): void {
 }
 
 export function configureProgress(partial: Partial<ProgressOptions>): void {
-  // Ignore undefined entries so omitted props keep their current values.
-  for (const [key, value] of Object.entries(partial)) {
-    if (value !== undefined) options = { ...options, [key]: value };
-  }
+  options = { ...options, ...definedEntries(partial) };
+}
+
+/** Drop undefined entries so omitted values keep their current (or default) counterparts. */
+export function definedEntries(partial: Partial<ProgressOptions>): Partial<ProgressOptions> {
+  return Object.fromEntries(
+    Object.entries(partial).filter(([, value]) => value !== undefined)
+  ) as Partial<ProgressOptions>;
 }
 
 export function subscribeProgress(listener: () => void): () => void {

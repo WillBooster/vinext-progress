@@ -81,7 +81,7 @@ A manually started bar is not subject to the automatic stall/in-flight timeouts 
 
 ## Known limitations
 
-- A link click whose navigation is canceled via `event.preventDefault()` in user code briefly starts the bar; the stall timeout clears it. (Distinguishing this case is impossible at the document level because the router itself calls `preventDefault()` for every client-side navigation.)
+- A link click or GET form submission whose navigation is canceled via `event.preventDefault()` in user code (e.g. a search form doing client-side filtering) briefly starts the bar; the stall timeout clears it. (Distinguishing this case is impossible at the document level because the router itself calls `preventDefault()` for every client-side navigation.) Opt out with `trackLinkClicks={false}` / `trackFormSubmits={false}`.
 - With a `basePath`, programmatic same-URL detection may start the bar unnecessarily; the settlement watcher, commit watcher, or stall timeout clears it.
 - Same-URL navigations the router actually performs (a `<Link>` to the current URL, a same-destination GET form submit) briefly show the bar: vinext refetches the page, the router reports the navigation, and the settlement watcher starts and then finishes the bar.
 

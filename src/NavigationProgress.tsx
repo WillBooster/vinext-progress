@@ -15,6 +15,7 @@ import {
 import {
   configureProgress,
   defaultProgressOptions,
+  definedEntries,
   finishProgress,
   getProgressSnapshot,
   getProgressStartCount,
@@ -208,12 +209,6 @@ const ProgressBarView: React.FC<ProgressBarViewProps> = ({ ariaLabel, color, hei
 // `useLayoutEffect` warns when executed during server rendering (React 18), and this client
 // component still renders on the server; on the server the fallback never runs anyway.
 const useIsomorphicLayoutEffect = globalThis.window === undefined ? useEffect : useLayoutEffect;
-
-function definedEntries(partial: Partial<ProgressOptions>): Partial<ProgressOptions> {
-  return Object.fromEntries(
-    Object.entries(partial).filter(([, value]) => value !== undefined)
-  ) as Partial<ProgressOptions>;
-}
 
 // `matchMedia` is checked separately from `window`: jsdom defines `window` but not `matchMedia`,
 // so consumers unit-testing their pages under jsdom would otherwise crash on this import.
