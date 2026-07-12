@@ -23,6 +23,14 @@ test('router.push: bar appears and completes', async ({ page }) => {
   await expect(page.getByRole('progressbar')).toHaveCount(0);
 });
 
+// vinext's own `<Link>` requires `target === '_self'` exactly, so an uppercase `_SELF` falls back to a
+// full page load. The bar must stay away rather than announce a client-side navigation that never happens.
+test('link click with an uppercase _SELF target: bar does not start, matching the router', async ({ page }) => {
+  await page.getByTestId('to-slow-uppercase-target').click();
+  await expect(page.getByRole('heading', { name: 'Slow page' })).toBeVisible();
+  await expect(page.getByRole('progressbar')).toHaveCount(0);
+});
+
 test('instant navigation: bar never lingers', async ({ page }) => {
   await page.getByTestId('to-instant').click();
   await expect(page.getByRole('heading', { name: 'Instant page' })).toBeVisible();

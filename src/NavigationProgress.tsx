@@ -170,7 +170,10 @@ function definedEntries(partial: Partial<ProgressOptions>): Partial<ProgressOpti
   ) as Partial<ProgressOptions>;
 }
 
-const reducedMotionQuery = globalThis.window === undefined ? undefined : matchMedia('(prefers-reduced-motion: reduce)');
+// `matchMedia` is checked separately from `window`: jsdom defines `window` but not `matchMedia`,
+// so consumers unit-testing their pages under jsdom would otherwise crash on this import.
+const reducedMotionQuery =
+  typeof globalThis.matchMedia === 'function' ? globalThis.matchMedia('(prefers-reduced-motion: reduce)') : undefined;
 
 function subscribeReducedMotion(listener: () => void): () => void {
   reducedMotionQuery?.addEventListener('change', listener);

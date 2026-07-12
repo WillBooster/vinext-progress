@@ -31,6 +31,12 @@ export default function HomePage(): ReactNode {
           </a>
         </li>
         <li>
+          {/* vinext's Link falls back to a full page load for any target other than exactly `_self`. */}
+          <Link data-testid="to-slow-uppercase-target" href="/slow" prefetch={false} target="_SELF">
+            Slow page via an uppercase _SELF target
+          </Link>
+        </li>
+        <li>
           <Link data-testid="to-redirect-self" href="/redirect-self" prefetch={false}>
             Redirect back to this page
           </Link>

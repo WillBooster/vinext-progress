@@ -12,6 +12,9 @@ export function handleDocumentClick(event: MouseEvent): void {
   const anchor = target?.closest('a');
   if (!(anchor instanceof HTMLAnchorElement)) return;
   if (anchor.hasAttribute('download')) return;
+  // Case-sensitive on purpose: vinext's own `<Link>` skips client-side navigation unless
+  // `target === '_self'` exactly, so `target="_SELF"` becomes a full page load. Accepting it here
+  // would show the bar for a navigation the router never performs.
   if (anchor.target && anchor.target !== '_self') return;
   const rawHref = anchor.getAttribute('href');
   if (!rawHref || rawHref.startsWith('#')) return;
@@ -33,6 +36,8 @@ export function handleDocumentSubmit(event: SubmitEvent): void {
   if (!(form instanceof HTMLFormElement)) return;
   const submitter = event.submitter;
   const target = submitter?.getAttribute('formtarget') ?? form.getAttribute('target');
+  // Case-sensitive for the same reason as the anchor target above: vinext's `<Form>` disables its
+  // own navigation for any target other than exactly `_self`.
   if (target && target !== '_self') return;
   const method = (submitter?.getAttribute('formmethod') ?? form.getAttribute('method') ?? 'get').toLowerCase();
   if (method !== 'get') return;

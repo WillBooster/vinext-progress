@@ -137,6 +137,8 @@ function restartStallTimer(): void {
 function update(phase: ProgressPhase, value: number): void {
   if (snapshot.phase === phase && snapshot.value === value) return;
   snapshot = { phase, value };
+  // Iterating the Set directly is safe: mutation during iteration is well-defined (entries deleted
+  // meanwhile are skipped), and a copy would allocate on every trickle tick.
   for (const listener of listeners) listener();
 }
 
