@@ -74,6 +74,22 @@ test('router-reported tracking opt-out: bar is not started, but a started bar st
   expect(getProgressSnapshot().phase).toBe('finishing');
 });
 
+test('a manual start taking over an in-flight navigation survives its settlement', async () => {
+  const state = installState();
+
+  state.pendingPathname = '/next';
+  await flushMicrotasks();
+  expect(getProgressSnapshot().phase).toBe('active');
+
+  // The app claims the bar mid-flight; the navigation's settlement must no
+  // longer finish it — only the app's own finish()/reset() may.
+  startProgress(false);
+  // oxlint-disable-next-line unicorn/no-null -- vinext writes null on settlement
+  state.pendingPathname = null;
+  await flushMicrotasks();
+  expect(getProgressSnapshot().phase).toBe('active');
+});
+
 test('a navigation that settles before the microtask flushes never shows the bar', async () => {
   const state = installState();
 

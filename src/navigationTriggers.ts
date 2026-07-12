@@ -1,4 +1,4 @@
-import { finishProgress, markNavigationInFlight, startProgress } from './progressStore.js';
+import { finishNavigationProgress, markNavigationInFlight, startProgress } from './progressStore.js';
 
 /**
  * Start the bar when a same-origin, different-URL link is clicked.
@@ -204,8 +204,11 @@ export function watchNavigationSettlement(): void {
       // where vinext may assign this property. Re-checked at flush time so a
       // navigation that starts before the microtask runs is not finished early.
       if (value === null && previous !== null) {
+        // finishNavigationProgress (not finishProgress): a bar the app claimed
+        // via a manual start() — even one taking over this very navigation —
+        // must survive the settlement, matching the commit watcher.
         queueMicrotask(() => {
-          if (pendingPathname === null) finishProgress();
+          if (pendingPathname === null) finishNavigationProgress();
         });
       } else if (value !== null) {
         // A real navigation is in flight: start the bar (idempotent when an
