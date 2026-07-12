@@ -95,11 +95,19 @@ const routerMethods = ['push', 'replace'] as const;
 
 /**
  * Whether `router[method] = ...` can be assigned without throwing: an own data property must be
- * writable, and an inherited one needs the object to accept a new own property.
+ * writable, and an inherited one must be writable too (strict-mode assignment throws over an
+ * inherited read-only method even on an extensible object) with the object accepting a new own
+ * property. An accessor never has `writable: true`, so it is conservatively treated as
+ * non-replaceable.
  */
 function isMethodReplaceable(router: AppRouterLike, method: (typeof routerMethods)[number]): boolean {
-  const descriptor = Object.getOwnPropertyDescriptor(router, method);
-  return descriptor ? descriptor.writable === true : Object.isExtensible(router);
+  for (let object: object | null = router; object !== null; object = Object.getPrototypeOf(object)) {
+    const descriptor = Object.getOwnPropertyDescriptor(object, method);
+    if (!descriptor) continue;
+    if (descriptor.writable !== true) return false;
+    return object === router || Object.isExtensible(router);
+  }
+  return Object.isExtensible(router);
 }
 
 function patchRouterObject(router: AppRouterLike | undefined): void {
@@ -129,16 +137,21 @@ interface ClientNavigationStateLike {
 }
 
 /**
- * Finish the bar whenever a navigation settles, even when the committed URL
- * equals the starting URL (e.g. a server-side `redirect()` back to the current
- * page) — in that case `usePathname`/`useSearchParams` never change, so the
- * commit watcher alone would leave the bar running until the stall timeout.
+ * Start the bar whenever the router itself reports an in-flight navigation and
+ * finish it whenever a navigation settles. Starting here covers navigations
+ * that have no interaction-time signal — back/forward traversals, server
+ * action redirects, `router.refresh()` — and finishing here covers commits
+ * whose URL equals the starting URL (e.g. a server-side `redirect()` back to
+ * the current page), where `usePathname`/`useSearchParams` never change and
+ * the commit watcher alone would leave the bar running until the stall timeout.
  *
  * vinext stores its navigation state on a window-global object (shared across
- * duplicated module copies) and resets `pendingPathname` to null when a
- * navigation commits or aborts, so an accessor on that property observes every
- * settlement. If vinext ever removes this internal, the accessor is simply
- * never installed and the public commit watcher + stall timeout still apply.
+ * duplicated module copies, and created eagerly when its `next/navigation`
+ * shim evaluates — which this library's own import guarantees happens before
+ * this runs) and resets `pendingPathname` to null when a navigation commits or
+ * aborts, so an accessor on that property observes every start and settlement.
+ * If vinext ever removes this internal, the accessor is simply never installed
+ * and the interaction listeners + commit watcher + stall timeout still apply.
  */
 export function watchNavigationSettlement(): void {
   const state = (globalThis as Record<symbol, unknown>)[Symbol.for('vinext.clientNavigationState')] as
@@ -171,11 +184,18 @@ export function watchNavigationSettlement(): void {
           if (pendingPathname === null) finishProgress();
         });
       } else if (value !== null) {
-        // A real navigation is in flight; settlement (or the commit watcher)
-        // finishes the bar, so switch from the short stall budget to the
-        // longer in-flight budget — merely slow navigations are not cut off,
-        // but a hung fetch (which never settles) still cannot stick forever.
-        markNavigationInFlight();
+        // A real navigation is in flight: start the bar (idempotent when an
+        // interaction listener already did) and switch from the short stall
+        // budget to the longer in-flight budget — settlement or the commit
+        // watcher finishes the bar, so merely slow navigations are not cut
+        // off, but a hung fetch (which never settles) still cannot stick
+        // forever. Deferred and re-checked like the settlement above.
+        queueMicrotask(() => {
+          if (pendingPathname !== null) {
+            startProgress();
+            markNavigationInFlight();
+          }
+        });
       }
     },
   });

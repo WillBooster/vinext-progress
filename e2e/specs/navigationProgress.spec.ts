@@ -101,6 +101,23 @@ test('hung navigation: bar finishes via the in-flight timeout', async ({ page })
   await expect(page.getByRole('progressbar')).toHaveCount(0);
 });
 
+test('back/forward traversal that refetches: bar appears and completes', async ({ page }) => {
+  await page.getByTestId('to-slow').click();
+  await expect(page.getByRole('heading', { name: 'Slow page' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
+  // Reload to drop vinext's in-memory history snapshots, so the forward
+  // traversal must refetch the slow page instead of restoring instantly.
+  await page.reload();
+  await expect(page.getByTestId('hydrated')).toBeAttached();
+  await page.goForward();
+  // Traversals have no click or router-call signal; only the settlement
+  // watcher's start path can show the bar here.
+  await expect(page.getByRole('progressbar')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Slow page' })).toBeVisible();
+  await expect(page.getByRole('progressbar')).toHaveCount(0);
+});
+
 test('back/forward: no stuck bar', async ({ page }) => {
   await page.getByTestId('to-slow').click();
   await expect(page.getByRole('heading', { name: 'Slow page' })).toBeVisible();

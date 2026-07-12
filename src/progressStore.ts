@@ -70,7 +70,7 @@ export function startProgress(): void {
   restartStallTimer();
 }
 
-/** Set the progress value explicitly (only while active). */
+/** Set the progress value explicitly, clamped to `[minimum, maximum]` (only while active). */
 export function setProgress(value: number): void {
   if (snapshot.phase !== 'active') return;
   update('active', Math.min(options.maximum, Math.max(options.minimum, value)));
@@ -142,7 +142,10 @@ function update(phase: ProgressPhase, value: number): void {
   if (snapshot.phase === phase && snapshot.value === value) return;
   snapshot = { phase, value };
   // Iterating the Set directly is safe: mutation during iteration is well-defined (entries deleted
-  // meanwhile are skipped), and a copy would allocate on every trickle tick.
+  // meanwhile are skipped), and a copy would allocate on every trickle tick. Re-entrant updates are
+  // not a concern either: `subscribeProgress` is not part of the public API, so listeners are only
+  // React's `useSyncExternalStore` callbacks, which schedule a re-render (reading the latest
+  // snapshot) instead of synchronously mutating the store.
   for (const listener of listeners) listener();
 }
 

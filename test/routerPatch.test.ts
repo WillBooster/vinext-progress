@@ -42,6 +42,40 @@ test('skips a frozen router instead of throwing', () => {
   expect(router.push('/next')).toBe('pushed /next');
 });
 
+test('patches a router with inherited writable methods (class instance)', () => {
+  class Router {
+    push(href: string): string {
+      return `pushed ${href}`;
+    }
+    replace(href: string): string {
+      return `replaced ${href}`;
+    }
+  }
+  const router = new Router();
+  patch(router);
+
+  expect(router.push('/next')).toBe('pushed /next');
+  expect(getProgressSnapshot().phase).toBe('active');
+});
+
+// Strict-mode assignment throws over an inherited read-only method even when the instance itself
+// is extensible, which `Object.isExtensible` alone misses.
+test('skips a router that inherits a read-only method instead of throwing', () => {
+  const proto = {};
+  Object.defineProperty(proto, 'push', {
+    value: (href: string) => `pushed ${href}`,
+    writable: false,
+    configurable: true,
+  });
+  const router = Object.create(proto) as RouterLike;
+  router.replace = (href) => `replaced ${href}`;
+
+  expect(() => {
+    patch(router);
+  }).not.toThrow();
+  expect(router.push('/next')).toBe('pushed /next');
+});
+
 // An extensible object can still carry a read-only method, which `Object.isExtensible` alone misses.
 test('skips a router whose method is read-only instead of throwing', () => {
   const router = { replace: (href: string) => `replaced ${href}` } as RouterLike;

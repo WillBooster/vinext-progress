@@ -2,7 +2,7 @@
 
 /* oxlint-disable jsx-a11y/prefer-tag-over-role -- <progress> cannot be styled as a fixed full-width top bar */
 import * as NextNavigation from 'next/navigation';
-import { Suspense, useEffect, useSyncExternalStore } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
 
 import {
   handleDocumentClick,
@@ -70,16 +70,23 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
   if (globalThis.window !== undefined) {
     patchAppRouter(NextNavigation);
     watchNavigationSettlement();
-    // Configured during render (not an effect): child effects run before
-    // parent effects, so a child's mount-time router.push would otherwise
-    // start the bar with default options or a stale tracking flag.
-    // These writes are idempotent and derived only from props, so a render that
-    // React discards or replays (StrictMode, concurrent rendering) leaves the
-    // same values behind: no navigation is started and nothing is rendered from
-    // them until a commit. They configure the bar; they never advance it.
+    // Configured during render (not only in the layout effect below): child
+    // effects run before parent effects, so a child's mount-time router.push
+    // would otherwise start the bar with default options or a stale tracking
+    // flag. These writes are idempotent and derived only from props, so a
+    // render that React replays (StrictMode) leaves the same values behind.
     configureProgress(fullOptions);
     setRouterTracking(trackRouterCalls);
   }
+
+  // Re-assert the configuration on every commit: React may discard a render
+  // (Suspense, errors, superseded transitions) after the render-phase writes
+  // above ran with props that never commit; the next commit always lands here
+  // and restores the committed configuration.
+  useIsomorphicLayoutEffect(() => {
+    configureProgress(fullOptions);
+    setRouterTracking(trackRouterCalls);
+  });
 
   useEffect(() => {
     if (!trackLinkClicks) return;
@@ -167,6 +174,10 @@ const ProgressBarView: React.FC<ProgressBarViewProps> = ({ ariaLabel, color, hei
     </div>
   );
 };
+
+// `useLayoutEffect` warns when executed during server rendering (React 18), and this client
+// component still renders on the server; on the server the fallback never runs anyway.
+const useIsomorphicLayoutEffect = globalThis.window === undefined ? useEffect : useLayoutEffect;
 
 function definedEntries(partial: Partial<ProgressOptions>): Partial<ProgressOptions> {
   return Object.fromEntries(

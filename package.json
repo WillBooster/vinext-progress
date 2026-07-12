@@ -1,7 +1,7 @@
 {
   "name": "vinext-progress",
   "version": "0.0.0-semantically-released",
-  "description": "Framework-native navigation progress bar for vinext. Detects route transitions through the router itself — no history monkey-patching, no stuck bars, ~1 kB, accessible by default.",
+  "description": "Framework-native navigation progress bar for vinext. Detects route transitions through the router itself — no history monkey-patching, no stuck bars, ~2 kB gzipped, accessible by default.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WillBooster/vinext-progress.git"
