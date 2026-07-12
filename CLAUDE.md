@@ -1,7 +1,7 @@
 ## Project Information
 
 - Name: `vinext-progress`
-- Description: Framework-native navigation progress bar for vinext. Detects route transitions through the router itself — no history monkey-patching, no stuck bars, ~1 kB, accessible by default.
+- Description: Framework-native navigation progress bar for vinext. Detects route transitions through the router itself — no history monkey-patching, no stuck bars, ~2 kB gzipped, accessible by default.
 - Package Manager: bun
 
 ## General Instructions

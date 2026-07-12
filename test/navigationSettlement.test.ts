@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from 'bun:test';
+import { afterAll, beforeEach, expect, test } from 'bun:test';
 
 import { setRouterReportedTracking, watchNavigationSettlement } from '../src/navigationTriggers.js';
 import { getProgressSnapshot, resetProgress, startProgress } from '../src/progressStore.js';
@@ -20,10 +20,20 @@ async function flushMicrotasks(): Promise<void> {
   await Promise.resolve();
 }
 
+const browserGlobals = globalThis as { window?: unknown };
+const originalWindow = browserGlobals.window;
+
 beforeEach(() => {
-  (globalThis as { window?: unknown }).window = globalThis;
+  browserGlobals.window = globalThis;
   resetProgress();
   setRouterReportedTracking(true);
+});
+
+// bun test runs all files in one process, so leaked global stubs would poison later test files.
+afterAll(() => {
+  browserGlobals.window = originalWindow;
+  delete (globalThis as Record<symbol, unknown>)[Symbol.for('vinext.clientNavigationState')];
+  resetProgress();
 });
 
 test('a router-reported in-flight navigation starts the bar and settlement finishes it', async () => {

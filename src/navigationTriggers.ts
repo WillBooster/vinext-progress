@@ -24,8 +24,11 @@ export function handleDocumentClick(event: MouseEvent): void {
 /**
  * Start the bar for GET form navigations (notably vinext's `next/form`, which
  * calls `navigateClientSide` directly and so bypasses both the click listener
- * and the router patch). Server-action forms are skipped: they have no string
- * `action` attribute. The destination is predicted the same way vinext's
+ * and the router patch). Server-action forms are skipped: vinext renders them
+ * with `method="POST"` (and stamps `formMethod="POST"` on submit buttons that
+ * carry a `formAction`), so the GET check excludes them; the `action` check
+ * additionally skips plain forms with no URL to navigate to.
+ * The destination is predicted the same way vinext's
  * `createFormSubmitDestinationUrl` builds it — drop the action URL's own
  * search, then append the submitted fields — so in-page search forms
  * (action = current pathname) start the bar too, while true no-op submits
