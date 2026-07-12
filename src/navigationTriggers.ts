@@ -93,6 +93,10 @@ export function patchAppRouter(navigationModule: unknown): void {
 
 function patchRouterObject(router: AppRouterLike | undefined): void {
   if (!router || typeof router.push !== 'function' || typeof router.replace !== 'function') return;
+  // A frozen or sealed router would make the assignments below throw, and this runs while the module is
+  // evaluated, so the throw would crash the host app on import. Skipping only costs the bar its start
+  // signal for programmatic navigations; link clicks and the commit watcher still work.
+  if (!Object.isExtensible(router)) return;
   if (patchedRouters.has(router)) return;
   patchedRouters.add(router);
   for (const method of ['push', 'replace'] as const) {

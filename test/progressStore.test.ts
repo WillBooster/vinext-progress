@@ -15,7 +15,9 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// The store refuses to start on the server, so these browser-behavior tests need a `window`.
 beforeEach(() => {
+  (globalThis as { window?: unknown }).window = globalThis;
   resetProgress();
   configureProgress({
     minimum: 0.08,
@@ -114,5 +116,19 @@ describe('subscribeProgress', () => {
     finishProgress();
     expect(notifications).toBe(1);
     resetProgress();
+  });
+
+  // Client components render on the server too, where the bar is always idle. Starting there would
+  // leak the trickle interval into the server process or edge isolate.
+  test('stays idle and starts no trickle timer on the server', async () => {
+    const globalWithWindow = globalThis as { window?: unknown };
+    delete globalWithWindow.window;
+
+    startProgress();
+    expect(getProgressSnapshot()).toEqual({ phase: 'idle', value: 0 });
+
+    // A leaked trickle interval (10ms here) would have advanced the value by now.
+    await sleep(40);
+    expect(getProgressSnapshot()).toEqual({ phase: 'idle', value: 0 });
   });
 });

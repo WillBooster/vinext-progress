@@ -49,8 +49,12 @@ let stallTimer: ReturnType<typeof setTimeout> | undefined;
 let idleTimer: ReturnType<typeof setTimeout> | undefined;
 let inFlightNavigation = false;
 
-/** Start (or keep) the progress bar and begin trickling toward `maximum`. */
+/** Start (or keep) the progress bar and begin trickling toward `maximum`. No-op on the server. */
 export function startProgress(): void {
+  // Client components also render on the server, where the bar always renders idle
+  // (`getServerProgressSnapshot`). Starting there could not show anything and would leak the
+  // trickle interval into the server process or edge isolate, so it is refused outright.
+  if (globalThis.window === undefined) return;
   if (snapshot.phase === 'active') {
     // A new navigation superseded the current one; give it a fresh safety
     // budget of the current kind (the longer in-flight budget once a real
