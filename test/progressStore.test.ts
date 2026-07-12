@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeEach, describe, expect, test } from 'bun:test';
 
 import {
   configureProgress,
+  defaultProgressOptions,
   finishProgress,
   getProgressSnapshot,
   markNavigationInFlight,
@@ -27,6 +28,12 @@ beforeEach(() => {
     stallTimeoutMs: 10_000,
     inFlightTimeoutMs: 30_000,
   });
+});
+
+// bun test runs all files in one process; leaked non-default options would make later files flaky.
+afterAll(() => {
+  configureProgress(defaultProgressOptions);
+  resetProgress();
 });
 
 describe('startProgress', () => {

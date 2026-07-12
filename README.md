@@ -77,7 +77,7 @@ progress.set(0.5);
 progress.finish();
 ```
 
-A manually started bar is not subject to the automatic stall/in-flight timeouts — it trickles until you call `finish()` (or `reset()`), so long-running work is never cut off. `isActive()` is a point-in-time read, not reactive state.
+A manually started bar is not subject to the automatic stall/in-flight timeouts — it trickles until you call `finish()` (or `reset()`), so long-running work is never cut off. Exception: a navigation that starts while the manual bar is showing takes the bar over and finishes it when the navigation commits or settles. `isActive()` is a point-in-time read, not reactive state.
 
 ## Known limitations
 

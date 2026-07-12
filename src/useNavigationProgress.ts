@@ -6,7 +6,9 @@ export interface NavigationProgressController {
   /**
    * Start the bar. Unlike automatic (navigation-driven) starts, no safety
    * timeout is armed: the bar trickles until `finish()` or `reset()` is
-   * called, so long-running work is never cut off mid-flight.
+   * called — unless a navigation starts while the bar is showing, in which
+   * case the navigation takes the bar over (re-arming the safety timeouts)
+   * and finishes it when it commits or settles.
    */
   start: () => void;
   /**
