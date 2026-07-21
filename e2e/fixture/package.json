@@ -1,9 +1,19 @@
 {
   "name": "vinext-progress-fixture",
   "private": true,
+  "license": "UNLICENSED",
   "type": "module",
+  "main": "./src",
   "scripts": {
-    "dev": "vinext dev"
+    "cleanup": "bun wb lint --fix --format",
+    "dev": "vinext dev",
+    "format": "bun wb lint --format",
+    "lint": "bun wb lint",
+    "lint-fix": "bun wb lint --fix",
+    "test": "bun wb test",
+    "typecheck": "bun wb typecheck",
+    "verify": "bun wb verify",
+    "verify-full": "bun wb verify --full"
   },
   "dependencies": {
     "react": "19.2.6",
@@ -12,8 +22,19 @@
     "vinext": "1.0.0-beta.0"
   },
   "devDependencies": {
+    "@tsconfig/bun": "1.0.10",
+    "@types/bun": "1.3.14",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitejs/plugin-react": "6.0.3",
     "@vitejs/plugin-rsc": "0.5.27",
+    "@willbooster/oxfmt-config": "1.2.2",
+    "@willbooster/oxlint-config": "1.4.8",
+    "@willbooster/wb": "15.3.0",
+    "oxfmt": "0.59.0",
+    "oxlint": "1.74.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "sort-package-json": "4.0.0",
+    "typescript": "7.0.2",
     "vite": "8.1.3"
   }
 }
