@@ -10,9 +10,9 @@
     "noEmit": true,
     "noUncheckedIndexedAccess": true,
     "paths": {
-      "next/form": ["../../node_modules/vinext/dist/shims/form"],
-      "next/link": ["../../node_modules/vinext/dist/shims/link"],
-      "next/navigation": ["../../node_modules/vinext/dist/shims/navigation"],
+      "next/form": ["./node_modules/vinext/dist/shims/form"],
+      "next/link": ["./node_modules/vinext/dist/shims/link"],
+      "next/navigation": ["./node_modules/vinext/dist/shims/navigation"],
       "undici-types": ["../../node_modules/undici-types/index.d.ts"],
       "vinext-progress": ["../../src/index.ts"]
     },

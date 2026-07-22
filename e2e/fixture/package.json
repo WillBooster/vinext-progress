@@ -1,7 +1,12 @@
 {
   "name": "vinext-progress-fixture",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WillBooster/vinext-progress.git"
+  },
   "license": "UNLICENSED",
+  "author": "WillBooster Inc.",
   "type": "module",
   "main": "./src",
   "scripts": {
@@ -29,9 +34,9 @@
     "@vitejs/plugin-rsc": "0.5.27",
     "@willbooster/oxfmt-config": "1.2.2",
     "@willbooster/oxlint-config": "1.4.8",
-    "@willbooster/wb": "15.3.0",
-    "oxfmt": "0.59.0",
-    "oxlint": "1.74.0",
+    "@willbooster/wb": "16.0.1",
+    "oxfmt": "0.60.0",
+    "oxlint": "1.75.0",
     "oxlint-tsgolint": "7.0.2001",
     "sort-package-json": "4.0.0",
     "typescript": "7.0.2",

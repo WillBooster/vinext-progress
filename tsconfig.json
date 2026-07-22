@@ -14,7 +14,7 @@
     "rootDir": ".",
     "types": ["bun"]
   },
-  "exclude": ["e2e/fixture/test/fixtures", "test/fixtures"],
+  "exclude": ["e2e/fixture/app", "e2e/fixture/test/fixtures", "test/fixtures"],
   "extends": "@tsconfig/bun/tsconfig.json",
   "include": [
     "*.config.ts",

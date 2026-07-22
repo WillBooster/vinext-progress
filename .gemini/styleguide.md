@@ -16,3 +16,5 @@ Review in English based on the following coding standards.
 - Prefer lambda over `function` for React components, e.g., `const Button: React.FC = () => {`.
 - Prefer `useImmer` over `useState` for arrays and objects.
 - Use `autoFocus` where it reduces user effort.
+- This project uses the React Compiler, so `useCallback` and `useMemo` are unnecessary for performance.
+- Assume a single server instance.

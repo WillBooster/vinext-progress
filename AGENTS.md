@@ -22,6 +22,8 @@
   - Always create new commits; avoid `--amend`.
 - Use heredoc for multi-line command input (e.g., `git commit -F -`, `gh pr create --body-file -`).
 - Put temporary files in `.tmp`; use `/tmp` only for files that must live outside the repo.
+- Tool versions (node, bun, and others) are pinned in `mise.toml`; run `mise install` after changing it, and never install those tools globally instead.
+- `bunfig.toml` uses Bun's isolated linker with a global store, so only declared dependencies resolve. If an import fails to resolve, declare that package in the `package.json` that imports it; never switch `linker` to `hoisted` or add to `publicHoistPattern` to work around it.
 - Use `bun wb start --mode test` to launch a web server for debugging or testing.
 
 ## Coding Style
@@ -40,3 +42,5 @@
 - Prefer lambda over `function` for React components, e.g., `const Button: React.FC = () => {`.
 - Prefer `useImmer` over `useState` for arrays and objects.
 - Use `autoFocus` where it reduces user effort.
+- This project uses the React Compiler, so `useCallback` and `useMemo` are unnecessary for performance.
+- Assume a single server instance.

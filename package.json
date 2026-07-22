@@ -45,11 +45,11 @@
     "@types/react": "19.2.13",
     "@willbooster/oxfmt-config": "1.2.2",
     "@willbooster/oxlint-config": "1.4.8",
-    "@willbooster/wb": "15.3.0",
+    "@willbooster/wb": "16.0.1",
     "conventional-changelog-conventionalcommits": "9.3.1",
     "lefthook": "2.1.10",
-    "oxfmt": "0.59.0",
-    "oxlint": "1.74.0",
+    "oxfmt": "0.60.0",
+    "oxlint": "1.75.0",
     "oxlint-tsgolint": "7.0.2001",
     "react": "19.2.6",
     "semantic-release": "25.0.5",
@@ -57,7 +57,7 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "typescript": ""
+    "typescript": "7.0.2"
   },
   "peerDependenciesMeta": {
     "typescript": {
