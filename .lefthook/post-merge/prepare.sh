@@ -9,4 +9,5 @@ run_if_changed() {
 }
 
 run_if_changed "(mise\.toml|\.mise\.toml|\.tool-versions|\..+-version)" "mise install"
-run_if_changed "package\.json" "bun install"
+run_if_changed "(package\.json|bun\.lock|bunfig\.toml|\.npmrc|patches/)" "bun install"
+run_if_changed "(bunfig\.toml|\.npmrc)" "rm -Rf -- 'e2e/fixture/node_modules/.vite'"

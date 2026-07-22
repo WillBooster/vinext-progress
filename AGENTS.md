@@ -8,7 +8,7 @@
 
 - If on `main`, create a new branch; otherwise work on the current branch.
 - Run `git` commands one at a time to avoid `index.lock` conflicts.
-- Write tests when explicitly requested, or when you judge the change worth testing; without a request, cover only the essential behavior.
+- Write a test only when explicitly requested, or when a behavior is both likely to regress AND has no other automatic safeguard (type checking, linting, or an existing test/CI check would not catch the breakage). Skip the test when an existing signal already catches the regression, or when you are only confirming an external fact (a library's behavior, whether a version fixes an issue)—verify those once manually instead of adding a permanent test.
 - When writing tests, follow these rules:
   - Continue modifying tests and/or code until all tests pass.
   - Ensure tests are idempotent and independent (e.g., reset persistent data) so they can run repeatedly or in parallel.
@@ -22,6 +22,8 @@
   - Always create new commits; avoid `--amend`.
 - Use heredoc for multi-line command input (e.g., `git commit -F -`, `gh pr create --body-file -`).
 - Put temporary files in `.tmp`; use `/tmp` only for files that must live outside the repo.
+- Tool versions (node, bun, and others) are pinned in `mise.toml`; run `mise install` after changing it, and never install those tools globally instead.
+- `bunfig.toml` uses Bun's isolated linker with a global store, so only declared dependencies resolve. If an import fails to resolve, declare that package in the `package.json` that imports it; never switch `linker` to `hoisted` or add to `publicHoistPattern` to work around it.
 - Use `bun wb start --mode test` to launch a web server for debugging or testing.
 
 ## Coding Style
@@ -35,3 +37,10 @@
 - Prefer `undefined` over `null` unless required by APIs or libraries.
 - Build prompts as a single template literal instead of `join()` on a pre-computable array of strings.
 - Assume all environment variables are defined; if validation is needed, `assert` at startup to fail fast.
+- Assume local tools such as `git`, `gh`, and `ghq` are installed and authenticated.
+- Ensure compatibility only with macOS and Linux; do not include Windows-specific code.
+- Prefer lambda over `function` for React components, e.g., `const Button: React.FC = () => {`.
+- Prefer `useImmer` over `useState` for arrays and objects.
+- Use `autoFocus` where it reduces user effort.
+- This project uses the React Compiler, so `useCallback` and `useMemo` are unnecessary for performance.
+- Assume a single server instance.

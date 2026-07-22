@@ -1,21 +1,29 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "importHelpers": false,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
+    "noUncheckedIndexedAccess": true,
     "paths": {
-      // vinext aliases next/* at runtime; map the same shims for type checking
-      // so the fixture does not need the heavyweight `next` package.
-      "next/form": ["../../node_modules/vinext/dist/shims/form"],
-      "next/link": ["../../node_modules/vinext/dist/shims/link"],
-      "next/navigation": ["../../node_modules/vinext/dist/shims/navigation"],
+      "next/form": ["./node_modules/vinext/dist/shims/form"],
+      "next/link": ["./node_modules/vinext/dist/shims/link"],
+      "next/navigation": ["./node_modules/vinext/dist/shims/navigation"],
+      "undici-types": ["../../node_modules/undici-types/index.d.ts"],
       "vinext-progress": ["../../src/index.ts"]
     },
+    "resolveJsonModule": true,
+    "rootDir": "../..",
     "skipLibCheck": true,
     "strict": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "types": ["bun"]
   },
-  "include": ["app/**/*", "vite.config.ts"]
+  "exclude": ["test/fixtures"],
+  "extends": "@tsconfig/bun/tsconfig.json",
+  "include": ["*.config.ts", "app/**/*", "scripts/**/*", "src/**/*", "test/**/*", "vite.config.ts"]
 }
