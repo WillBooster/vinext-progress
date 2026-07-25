@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, expect, test } from 'bun:test';
 
-import { setRouterReportedTracking, watchNavigationSettlement } from '../src/navigationTriggers.js';
-import { getProgressSnapshot, resetProgress, startProgress } from '../src/progressStore.js';
+import { setRouterReportedTracking, watchNavigationSettlement } from '../../src/navigationTriggers.js';
+import { getProgressSnapshot, resetProgress, startProgress } from '../../src/progressStore.js';
 
 interface NavigationStateLike {
   pendingPathname: string | null;

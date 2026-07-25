@@ -15,7 +15,7 @@ test('imports in a DOM environment that has no matchMedia', async () => {
   globalWithWindow.window = globalThis;
 
   try {
-    const { NavigationProgress } = await import('../src/NavigationProgress.js');
+    const { NavigationProgress } = await import('../../src/NavigationProgress.js');
     expect(typeof NavigationProgress).toBe('function');
   } finally {
     delete globalWithWindow.window;
