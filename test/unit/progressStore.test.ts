@@ -11,7 +11,7 @@ import {
   setProgress,
   startProgress,
   subscribeProgress,
-} from '../src/progressStore.js';
+} from '../../src/progressStore.js';
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

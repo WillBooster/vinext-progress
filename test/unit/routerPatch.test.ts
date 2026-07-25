@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, expect, test } from 'bun:test';
 
-import { patchAppRouter, setRouterTracking } from '../src/navigationTriggers.js';
-import { getProgressSnapshot, resetProgress } from '../src/progressStore.js';
+import { patchAppRouter, setRouterTracking } from '../../src/navigationTriggers.js';
+import { getProgressSnapshot, resetProgress } from '../../src/progressStore.js';
 
 // The patch runs while the module is evaluated, so a throw here would crash the host app on import.
 interface RouterLike {
