@@ -92,7 +92,7 @@ A manually started bar is not subject to the automatic stall/in-flight timeouts 
 bun install
 bun run build              # tsc → dist/
 bun run test               # unit (bun test) + e2e (Playwright against a real vinext app in e2e/fixture)
-bun run test test/unit/    # unit tests only
+bun test test/unit/        # unit tests only
 bun run test test/e2e/     # e2e tests only
 ```
 
