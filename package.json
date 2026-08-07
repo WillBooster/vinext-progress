@@ -31,9 +31,8 @@
     "lint-fix": "bun wb lint --fix",
     "prepare": "lefthook install || true",
     "test": "bun wb test",
-    "test:e2e": "bun run build && playwright test --config e2e/playwright.config.ts",
-    "test:unit": "bun test test",
-    "test/ci": "playwright install --with-deps chromium && bun run test",
+    "test/ci": "bun wb test-on-ci",
+    "test/ci-setup": "playwright install --with-deps chromium",
     "typecheck": "bun wb typecheck",
     "verify": "bun wb verify",
     "verify-full": "bun wb verify --full"
