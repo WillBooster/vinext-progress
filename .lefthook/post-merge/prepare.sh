@@ -9,6 +9,7 @@ run_if_changed() {
 }
 
 run_if_changed "(mise\.toml|\.mise\.toml)" "mise install"
-if git diff --no-color -U0 ORIG_HEAD HEAD -- '*bunfig.toml' | grep --quiet -E '^[+-] *(globalStore|linker|publicHoistPattern)'; then rm -Rf -- 'e2e/fixture/node_modules' 'node_modules'; fi
+eval "$(mise env -s bash)"
+if git diff --no-color -U0 ORIG_HEAD HEAD -- '*bunfig.toml' | grep --quiet -E '^[+-] *(globalStore|linker|publicHoistPattern)'; then rm -Rf -- e2e/fixture/node_modules node_modules; fi
 run_if_changed "(package\.json|bun\.lock|bunfig\.toml|\.npmrc|patches/)" "bun install"
-run_if_changed "(bunfig\.toml|\.npmrc)" "rm -Rf -- 'e2e/fixture/node_modules/.vite'"
+run_if_changed "(bunfig\.toml|\.npmrc)" "rm -Rf -- e2e/fixture/node_modules/.vite"
