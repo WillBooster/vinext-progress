@@ -44,7 +44,7 @@
     "@types/react": "19.2.13",
     "@willbooster/oxfmt-config": "1.2.2",
     "@willbooster/oxlint-config": "1.4.8",
-    "@willbooster/wb": "22.6.0",
+    "@willbooster/wb": "22.7.1",
     "conventional-changelog-conventionalcommits": "9.3.1",
     "lefthook": "2.1.14",
     "oxfmt": "0.68.0",
