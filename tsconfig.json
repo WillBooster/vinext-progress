@@ -17,6 +17,7 @@
   "exclude": ["e2e/fixture/app", "e2e/fixture/test/fixtures", "test/fixtures"],
   "extends": "@tsconfig/bun/tsconfig.json",
   "include": [
+    "*.config.mts",
     "*.config.ts",
     "e2e/**/*",
     "e2e/fixture/*.config.ts",
