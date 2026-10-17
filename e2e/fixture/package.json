@@ -37,7 +37,7 @@
     "@willbooster/wb": "22.26.1",
     "oxfmt": "0.72.0",
     "oxlint": "1.87.0",
-    "oxlint-tsgolint": "7.0.2003",
+    "oxlint-tsgolint": "7.0.2004",
     "sort-package-json": "4.0.0",
     "typescript": "7.0.2",
     "vite": "8.1.3"
