@@ -21,9 +21,9 @@
     "verify-full": "bun wb verify --full"
   },
   "dependencies": {
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "react-server-dom-webpack": "19.2.6",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "react-server-dom-webpack": "19.2.9",
     "vinext": "1.0.0-beta.0"
   },
   "devDependencies": {
@@ -34,9 +34,9 @@
     "@vitejs/plugin-rsc": "0.5.27",
     "@willbooster/oxfmt-config": "1.2.2",
     "@willbooster/oxlint-config": "1.4.8",
-    "@willbooster/wb": "22.24.0",
-    "oxfmt": "0.71.0",
-    "oxlint": "1.86.0",
+    "@willbooster/wb": "22.26.1",
+    "oxfmt": "0.72.0",
+    "oxlint": "1.87.0",
     "oxlint-tsgolint": "7.0.2003",
     "sort-package-json": "4.0.0",
     "typescript": "7.0.2",
