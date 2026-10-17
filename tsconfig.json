@@ -14,19 +14,7 @@
     "rootDir": ".",
     "types": ["bun"]
   },
-  "exclude": ["e2e/fixture/app", "e2e/fixture/test/fixtures", "test/fixtures"],
+  "exclude": ["e2e/fixture/app", "test/fixtures"],
   "extends": "@tsconfig/bun/tsconfig.json",
-  "include": [
-    "*.config.mts",
-    "*.config.ts",
-    "e2e/**/*",
-    "e2e/fixture/*.config.ts",
-    "e2e/fixture/scripts/**/*",
-    "e2e/fixture/src/**/*",
-    "e2e/fixture/test/**/*",
-    "scripts/**/*",
-    "src/**/*",
-    "test/**/*",
-    "types/**/*"
-  ]
+  "include": ["*.config.mts", "*.config.ts", "e2e/**/*", "scripts/**/*", "src/**/*", "test/**/*", "types/**/*"]
 }
