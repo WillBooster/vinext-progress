@@ -20,6 +20,7 @@
         "react": "19.2.9",
         "semantic-release": "25.0.5",
         "sort-package-json": "4.1.0",
+        "typescript": "7.0.2",
       },
       "peerDependencies": {
         "react": ">=18",
