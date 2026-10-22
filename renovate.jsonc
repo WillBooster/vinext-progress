@@ -1,4 +1,16 @@
 {
+  "packageRules": [
+    {
+      "description": "@vitejs/plugin-react peer-requires a single minor of oxc-transform-react, which Renovate does not check, so update both together and review them by hand",
+      "groupName": "React Compiler",
+      "groupSlug": "react-compiler",
+      "matchPackageNames": ["@vitejs/plugin-react", "oxc-transform-react"],
+      "automerge": false,
+      "prBodyNotes": [
+        "Update `oxc-transform-react` and its `allowedVersions` in `renovate.jsonc` to the range the new `@vitejs/plugin-react` declares in `peerDependencies`.",
+      ],
+    },
+  ],
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>WillBooster/willbooster-configs:renovate.jsonc"],
 }
