@@ -30,7 +30,7 @@
     "@tsconfig/bun": "1.0.10",
     "@types/bun": "1.4.3",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
-    "@vitejs/plugin-react": "6.0.3",
+    "@vitejs/plugin-react": "6.1.2",
     "@vitejs/plugin-rsc": "0.5.27",
     "@willbooster/oxfmt-config": "1.2.2",
     "@willbooster/oxlint-config": "1.4.8",

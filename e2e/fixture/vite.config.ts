@@ -4,7 +4,8 @@ import { defineConfig } from 'vite';
 import vinext from 'vinext';
 
 export default defineConfig({
-  plugins: [vinext()],
+  // The e2e tests deliberately exercise the library as published, without React Compiler output.
+  plugins: [vinext({ react: { compiler: false } })],
   resolve: {
     // The fixture consumes the built library directly; bun cannot express a
     // child-workspace dependency on the repository root package.
