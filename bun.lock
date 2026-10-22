@@ -11,7 +11,7 @@
         "@types/react": "19.2.13",
         "@willbooster/oxfmt-config": "1.2.2",
         "@willbooster/oxlint-config": "1.4.8",
-        "@willbooster/wb": "22.26.2",
+        "@willbooster/wb": "22.26.3",
         "conventional-changelog-conventionalcommits": "9.3.1",
         "lefthook": "2.2.2",
         "oxfmt": "0.73.0",
@@ -19,7 +19,7 @@
         "oxlint-tsgolint": "7.0.2004",
         "react": "19.2.9",
         "semantic-release": "25.0.5",
-        "sort-package-json": "4.0.0",
+        "sort-package-json": "4.1.0",
       },
       "peerDependencies": {
         "react": ">=18",
@@ -45,11 +45,11 @@
         "@vitejs/plugin-rsc": "0.5.27",
         "@willbooster/oxfmt-config": "1.2.2",
         "@willbooster/oxlint-config": "1.4.8",
-        "@willbooster/wb": "22.26.2",
+        "@willbooster/wb": "22.26.3",
         "oxfmt": "0.73.0",
         "oxlint": "1.88.0",
         "oxlint-tsgolint": "7.0.2004",
-        "sort-package-json": "4.0.0",
+        "sort-package-json": "4.1.0",
         "typescript": "7.0.2",
         "vite": "8.1.3",
       },
@@ -416,7 +416,7 @@
 
     "@willbooster/shared-lib": ["@willbooster/shared-lib@10.18.0", "", {}, "sha512-R3wgsiueBaFvWU/uj8JXCvq3nkRQPfsb7j2ShZlkgAHYodiOBQt13kXuj/kDiEI9YJTdn9b0UvchuV3JBootOw=="],
 
-    "@willbooster/wb": ["@willbooster/wb@22.26.2", "", { "dependencies": { "@textlint-rule/textlint-rule-no-invalid-control-character": "3.0.0", "@textlint/kernel": "15.8.0", "@textlint/module-interop": "15.8.0", "@textlint/textlint-plugin-markdown": "15.8.0", "chalk": "6.0.1", "code-gauge": "10.2.2", "dotenv": "18.0.7", "dotenv-expand": "13.0.0", "fast-glob": "3.3.3", "fastest-levenshtein": "1.0.16", "globby": "16.2.4", "jsonc-parser": "3.3.1", "minimal-promise-pool": "6.0.4", "semver": "7.8.5", "smol-toml": "1.9.1", "textlint-filter-rule-node-types": "1.1.0", "textlint-rule-ja-space-between-half-and-full-width": "3.0.3", "textlint-rule-no-zero-width-spaces": "1.0.1", "yargs": "18.2.0", "zod": "4.6.5" }, "bin": { "wb": "bin/index.js" } }, "sha512-SvNe84E9BldHr5+X2tNvtS1pX6K/+Y8GZ5v7Ujth4Y5q/2XQh2ucb5XNdgWXeayqjp80S2jpODqUv6TjcopEBQ=="],
+    "@willbooster/wb": ["@willbooster/wb@22.26.3", "", { "dependencies": { "@textlint-rule/textlint-rule-no-invalid-control-character": "3.0.0", "@textlint/kernel": "15.8.0", "@textlint/module-interop": "15.8.0", "@textlint/textlint-plugin-markdown": "15.8.0", "chalk": "6.0.1", "code-gauge": "10.2.2", "dotenv": "18.0.7", "dotenv-expand": "13.0.0", "fast-glob": "3.3.3", "fastest-levenshtein": "1.0.16", "globby": "16.2.4", "jsonc-parser": "3.3.1", "minimal-promise-pool": "6.0.4", "semver": "7.8.5", "smol-toml": "1.9.1", "textlint-filter-rule-node-types": "1.1.0", "textlint-rule-ja-space-between-half-and-full-width": "3.0.3", "textlint-rule-no-zero-width-spaces": "1.0.1", "yargs": "18.2.0", "zod": "4.6.5" }, "bin": { "wb": "bin/index.js" } }, "sha512-MPbZQJNDi+aFhwtnB/bWfxGCBrL1qsXZt8tbWNwx+uxJdMfWOPq3To+MzatAO+sZkg8UkOZ/3aThUezSsHR1xA=="],
 
     "@xtuc/ieee754": ["@xtuc/ieee754@1.2.0", "", {}, "sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA=="],
 
@@ -1084,7 +1084,7 @@
 
     "sort-object-keys": ["sort-object-keys@2.1.0", "", {}, "sha512-SOiEnthkJKPv2L6ec6HMwhUcN0/lppkeYuN1x63PbyPRrgSPIuBJCiYxYyvWRTtjMlOi14vQUCGUJqS6PLVm8g=="],
 
-    "sort-package-json": ["sort-package-json@4.0.0", "", { "dependencies": { "detect-indent": "^7.0.2", "detect-newline": "^4.0.1", "git-hooks-list": "^4.1.1", "is-plain-obj": "^4.1.0", "semver": "^7.7.3", "sort-object-keys": "^2.0.1", "tinyglobby": "^0.2.15" }, "bin": { "sort-package-json": "cli.js" } }, "sha512-6aYOlYI9AWioZ+rzu+4zKLmoFqJP0/fHDxrd7X04yqEibikY+5YVF0EYlyGn4v6X2PJY7yAUWV7oeP+i5rOm/g=="],
+    "sort-package-json": ["sort-package-json@4.1.0", "", { "dependencies": { "detect-indent": "^7.0.2", "detect-newline": "^4.0.1", "git-hooks-list": "^4.1.1", "is-plain-obj": "^4.1.0", "semver": "^7.7.3", "sort-object-keys": "^2.0.1", "tinyglobby": "^0.2.15" }, "bin": { "sort-package-json": "cli.js" } }, "sha512-CI7HgkV5rCE5dbYYJMuXkxgiSLc3uJczff9ic3kHuY5QRYKUbfsDSKN4DjTpvqejdJEkKLusQ64ykTte5ypr1A=="],
 
     "source-map": ["source-map@0.6.1", "", {}, "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="],
 
