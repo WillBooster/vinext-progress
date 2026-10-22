@@ -34,11 +34,11 @@
     "@vitejs/plugin-rsc": "0.5.27",
     "@willbooster/oxfmt-config": "1.2.2",
     "@willbooster/oxlint-config": "1.4.8",
-    "@willbooster/wb": "22.26.2",
+    "@willbooster/wb": "22.26.3",
     "oxfmt": "0.73.0",
     "oxlint": "1.88.0",
     "oxlint-tsgolint": "7.0.2004",
-    "sort-package-json": "4.0.0",
+    "sort-package-json": "4.1.0",
     "typescript": "7.0.2",
     "vite": "8.1.3"
   }
