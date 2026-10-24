@@ -10,7 +10,6 @@
     "noEmit": true,
     "noUncheckedIndexedAccess": true,
     "paths": {
-      "undici-types": ["../../node_modules/undici-types/index.d.ts"],
       "vinext-progress": ["../../src/index.ts"]
     },
     "resolveJsonModule": true,
