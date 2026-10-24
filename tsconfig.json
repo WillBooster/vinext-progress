@@ -7,14 +7,12 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "noEmit": true,
     "noUncheckedIndexedAccess": true,
-    "paths": {
-      "undici-types": ["./node_modules/undici-types/index.d.ts"]
-    },
+    "paths": {},
     "resolveJsonModule": true,
     "rootDir": ".",
     "types": ["bun"]
   },
-  "exclude": ["e2e/fixture/app", "e2e/fixture/types", "test/fixtures"],
+  "exclude": ["e2e/fixture/app", "test/fixtures", "e2e/fixture/types"],
   "extends": "@tsconfig/bun/tsconfig.json",
   "include": ["*.config.mts", "*.config.ts", "e2e/**/*", "scripts/**/*", "src/**/*", "test/**/*", "types/**/*"]
 }

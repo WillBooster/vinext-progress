@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
-import { defineConfig } from 'vite';
 import vinext from 'vinext';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   // The e2e tests deliberately exercise the library as published, without React Compiler output.
