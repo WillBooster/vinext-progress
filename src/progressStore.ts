@@ -60,9 +60,9 @@ let startCount = 0;
  * mid-work. A later real navigation re-arms a budget via `startProgress()`/`markNavigationInFlight`.
  */
 export function startProgress(armSafetyTimeout = true): void {
-  // Client components also render on the server, where the bar always renders idle
-  // (`getServerProgressSnapshot`). Starting there could not show anything and would leak the
-  // trickle interval into the server process or edge isolate, so it is refused outright.
+  // Client components also render on the server, where the bar always renders idle. Starting there
+  // could not show anything and would leak the trickle interval into the server process or edge
+  // isolate, so it is refused outright.
   if (globalThis.window === undefined) return;
   // Every start marks a (potentially superseding) claim on the bar, even while active; the commit
   // watcher uses this to avoid finishing a navigation newer than the commit it observed.
@@ -172,11 +172,6 @@ export function getProgressStartCount(): number {
   return startCount;
 }
 
-/** Server-side rendering always sees the idle state. */
-export function getServerProgressSnapshot(): ProgressSnapshot {
-  return idleSnapshot;
-}
-
 function restartStallTimer(): void {
   clearTimeout(stallTimer);
   stallTimer = setTimeout(
@@ -197,9 +192,8 @@ function update(phase: ProgressPhase, value: number): void {
   snapshot = { phase, value };
   // Iterating the Set directly is safe: mutation during iteration is well-defined (entries deleted
   // meanwhile are skipped), and a copy would allocate on every trickle tick. Re-entrant updates are
-  // not a concern either: `subscribeProgress` is not part of the public API, so listeners are only
-  // React's `useSyncExternalStore` callbacks, which schedule a re-render (reading the latest
-  // snapshot) instead of synchronously mutating the store.
+  // not a concern either: `subscribeProgress` is not part of the public API, so the only listener is
+  // the bar's DOM painter, which reads the snapshot without mutating the store.
   for (const listener of listeners) listener();
 }
 

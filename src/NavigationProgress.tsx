@@ -2,7 +2,7 @@
 
 /* oxlint-disable jsx-a11y/prefer-tag-over-role -- <progress> cannot be styled as a fixed full-width top bar */
 import * as NextNavigation from 'next/navigation';
-import { Suspense, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useRef } from 'react';
 
 import {
   handleDocumentClick,
@@ -19,7 +19,6 @@ import {
   finishNavigationProgress,
   getProgressSnapshot,
   getProgressStartCount,
-  getServerProgressSnapshot,
   subscribeProgress,
 } from './progressStore.js';
 import type { ProgressOptions } from './progressStore.js';
@@ -174,19 +173,47 @@ interface ProgressBarViewProps {
   zIndex: number;
 }
 
+/**
+ * Writes every progress change straight to the DOM instead of re-rendering: trickle ticks are
+ * frequent, and a React update for each would interrupt and restart a navigation's transition
+ * render, which then commits only when React expires the transition (about 5 seconds later).
+ */
 const ProgressBarView: React.FC<ProgressBarViewProps> = ({ ariaLabel, color, height, speed, zIndex }) => {
-  const { phase, value } = useSyncExternalStore(subscribeProgress, getProgressSnapshot, getServerProgressSnapshot);
-  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion, () => false);
-  if (phase === 'idle') return;
-  const finishing = phase === 'finishing';
+  const barRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
+  useIsomorphicLayoutEffect(() => {
+    const bar = barRef.current;
+    const fill = fillRef.current;
+    if (!bar || !fill) return;
+    const paint = (): void => {
+      const { phase, value } = getProgressSnapshot();
+      // Hidden elements are left out of the accessibility tree, so an idle bar is never announced.
+      bar.style.display = phase === 'idle' ? 'none' : '';
+      bar.setAttribute('aria-valuenow', String(Math.round(value * 100)));
+      fill.style.opacity = phase === 'finishing' ? '0' : '1';
+      fill.style.transition = reducedMotionQuery?.matches
+        ? 'none'
+        : `width ${speed}ms ease, opacity ${speed}ms ease ${speed}ms`;
+      fill.style.width = `${value * 100}%`;
+    };
+    paint();
+    const unsubscribe = subscribeProgress(paint);
+    reducedMotionQuery?.addEventListener('change', paint);
+    return () => {
+      unsubscribe();
+      reducedMotionQuery?.removeEventListener('change', paint);
+    };
+  }, [speed]);
   return (
     <div
       aria-label={ariaLabel}
       aria-valuemax={100}
       aria-valuemin={0}
-      aria-valuenow={Math.round(value * 100)}
+      aria-valuenow={0}
+      ref={barRef}
       role="progressbar"
       style={{
+        display: 'none',
         height,
         left: 0,
         pointerEvents: 'none',
@@ -196,15 +223,7 @@ const ProgressBarView: React.FC<ProgressBarViewProps> = ({ ariaLabel, color, hei
         zIndex,
       }}
     >
-      <div
-        style={{
-          background: color,
-          height: '100%',
-          opacity: finishing ? 0 : 1,
-          transition: reducedMotion ? 'none' : `width ${speed}ms ease, opacity ${speed}ms ease ${speed}ms`,
-          width: `${value * 100}%`,
-        }}
-      />
+      <div ref={fillRef} style={{ background: color, height: '100%' }} />
     </div>
   );
 };
@@ -217,14 +236,3 @@ const useIsomorphicLayoutEffect = globalThis.window === undefined ? useEffect : 
 // so consumers unit-testing their pages under jsdom would otherwise crash on this import.
 const reducedMotionQuery =
   typeof globalThis.matchMedia === 'function' ? globalThis.matchMedia('(prefers-reduced-motion: reduce)') : undefined;
-
-function subscribeReducedMotion(listener: () => void): () => void {
-  reducedMotionQuery?.addEventListener('change', listener);
-  return () => {
-    reducedMotionQuery?.removeEventListener('change', listener);
-  };
-}
-
-function getReducedMotion(): boolean {
-  return reducedMotionQuery?.matches ?? false;
-}

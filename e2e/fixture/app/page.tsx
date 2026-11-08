@@ -47,6 +47,11 @@ export default function HomePage(): ReactNode {
           </Link>
         </li>
         <li>
+          <Link data-testid="to-heavy" href="/heavy" prefetch={false}>
+            Heavy page
+          </Link>
+        </li>
+        <li>
           <PushButton />
         </li>
         <li>

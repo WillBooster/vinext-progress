@@ -15,6 +15,17 @@ test('link click: bar appears during a slow navigation and disappears after comm
   await expect(page.getByRole('progressbar')).toHaveCount(0);
 });
 
+test('navigation with a render longer than the trickle interval commits without waiting for React to expire it', async ({
+  page,
+}) => {
+  const startedAt = Date.now();
+  await page.getByTestId('to-heavy').click();
+  await expect(page.getByRole('heading', { name: 'Heavy page' })).toBeVisible();
+  // React forces a starved transition to commit after 5s; trickle updates must not restart its render.
+  expect(Date.now() - startedAt).toBeLessThan(3000);
+  await expect(page.getByRole('progressbar')).toHaveCount(0);
+});
+
 test('router.push: bar appears and completes', async ({ page }) => {
   await page.getByTestId('push-slow').click();
   await expect(page.getByRole('progressbar')).toBeVisible();
