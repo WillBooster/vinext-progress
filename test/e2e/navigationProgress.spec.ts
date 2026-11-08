@@ -97,7 +97,7 @@ test('manually started bar survives an idle history commit', async ({ page }) =>
   await page.getByTestId('idle-commit').click();
   // vinext rewrites pendingPathname = null over null on idle commits; the bar
   // must keep trickling instead of being finished by the settlement watcher.
-  // A wrongly finished bar reaches aria-valuenow=100 and unmounts within
+  // A wrongly finished bar reaches aria-valuenow=100 and hides within
   // 2 * speed = 400ms, so wait past that window before asserting.
   await page.waitForTimeout(800);
   await expect(bar).toBeVisible();

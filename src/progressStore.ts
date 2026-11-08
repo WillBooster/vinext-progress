@@ -111,7 +111,7 @@ export function finishNavigationProgress(): void {
   if (navigationOwned) finishProgress();
 }
 
-/** Complete the bar: grow to 100%, fade out, then unmount. No-op when idle. */
+/** Complete the bar: grow to 100%, fade out, then hide. No-op when idle. */
 export function finishProgress(): void {
   if (snapshot.phase !== 'active') return;
   clearTimers();
