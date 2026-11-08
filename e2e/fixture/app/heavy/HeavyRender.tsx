@@ -14,9 +14,11 @@ export function HeavyRender(): ReactNode {
 }
 
 function SlowChunk({ index }: { index: number }): ReactNode {
+  // oxlint-disable-next-line react/purity -- the fixture deliberately burns render time to simulate a slow device
   const end = performance.now() + CHUNK_RENDER_MS;
+  // oxlint-disable-next-line react/purity -- same busy-wait as above
   while (performance.now() < end) {
-    // Busy-wait to simulate an expensive render on a slow device.
+    // Busy-wait until the chunk's render budget is spent.
   }
   return <p>Chunk {index + 1}</p>;
 }
