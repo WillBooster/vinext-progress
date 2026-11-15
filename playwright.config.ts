@@ -23,7 +23,7 @@ export default defineConfig({
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
   },
   webServer: {
-    command: `bun run dev -p ${port}`,
+    command: `bun run --cwd ../.. build && bun run dev --port ${port}`,
     cwd: './e2e/fixture',
     reuseExistingServer: !process.env.CI,
     url: `http://localhost:${port}`,
